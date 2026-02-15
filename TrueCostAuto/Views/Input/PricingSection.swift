@@ -63,6 +63,42 @@ struct PricingSection: View {
                         .foregroundStyle(TCTheme.accent)
                 }
                 .padding(.horizontal, 14)
+                .padding(.bottom, 10)
+
+                Divider().overlay(TCTheme.line)
+
+                // Depreciation rate
+                HStack(spacing: 12) {
+                    PercentField(
+                        label: "Est. Annual Depreciation",
+                        value: $vm.vehicle.depreciationRate
+                    )
+                }
+                .padding(14)
+
+                // Depreciation preview
+                let depRate = viewModel.vehicle.depreciationRate / 100.0
+                let fiveYrDep = viewModel.vehicle.vehiclePrice * (1 - pow(1 - depRate, 5))
+                let monthlyDep = fiveYrDep / 60.0
+
+                HStack {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chart.line.downtrend.xyaxis")
+                            .font(.system(size: 11))
+                            .foregroundStyle(TCTheme.depreciation)
+                        Text("Value loss")
+                            .font(.system(size: 11))
+                            .foregroundStyle(TCTheme.muted)
+                    }
+                    Spacer()
+                    Text("\(TCTheme.formatCurrency(monthlyDep))/mo")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(TCTheme.depreciation)
+                    Text("(\(TCTheme.formatCurrency(fiveYrDep)) over 5 yr)")
+                        .font(.system(size: 10))
+                        .foregroundStyle(TCTheme.muted)
+                }
+                .padding(.horizontal, 14)
                 .padding(.bottom, 14)
             }
         }

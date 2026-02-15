@@ -35,11 +35,13 @@ struct RunningCostsSection: View {
                     unit: "$/mo",
                     value: $vm.vehicle.insurance
                 )
-                CurrencyField(
-                    label: "Fuel / Charging",
-                    unit: "$/mo",
-                    value: $vm.vehicle.fuel
-                )
+                if !viewModel.vehicle.useFuelEstimator {
+                    CurrencyField(
+                        label: "Fuel / Charging",
+                        unit: "$/mo",
+                        value: $vm.vehicle.fuel
+                    )
+                }
                 CurrencyField(
                     label: "Maintenance",
                     unit: "$/mo",
@@ -53,12 +55,86 @@ struct RunningCostsSection: View {
             }
             .padding(14)
 
+            // Fuel Estimator
+            fuelEstimatorSection
+
             // Running cost breakdown bar
             runningCostBar
                 .padding(.horizontal, 14)
                 .padding(.bottom, 14)
         }
         .tcCard()
+    }
+
+    @ViewBuilder
+    private var fuelEstimatorSection: some View {
+        @Bindable var vm = viewModel
+
+        VStack(spacing: 10) {
+            Divider().overlay(TCTheme.line)
+
+            HStack {
+                Toggle(isOn: $vm.vehicle.useFuelEstimator) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "fuelpump.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(TCTheme.good)
+                        Text("Fuel Estimator")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(TCTheme.text)
+                    }
+                }
+                .tint(TCTheme.accent)
+            }
+            .padding(.horizontal, 14)
+            .padding(.top, 6)
+            .onChange(of: viewModel.vehicle.useFuelEstimator) {
+                if viewModel.vehicle.useFuelEstimator {
+                    viewModel.updateFuelEstimate()
+                }
+            }
+
+            if viewModel.vehicle.useFuelEstimator {
+                LazyVGrid(columns: [
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12)
+                ], spacing: 12) {
+                    CurrencyField(
+                        label: "Annual Distance",
+                        unit: viewModel.currency.distanceUnit,
+                        value: $vm.vehicle.annualDistance
+                    )
+                    CurrencyField(
+                        label: "Fuel Efficiency",
+                        unit: viewModel.currency.fuelEfficiencyLabel,
+                        value: $vm.vehicle.fuelEfficiency
+                    )
+                    CurrencyField(
+                        label: "Fuel Price",
+                        unit: viewModel.currency.fuelPriceLabel,
+                        value: $vm.vehicle.fuelPricePerUnit
+                    )
+                }
+                .padding(.horizontal, 14)
+                .onChange(of: viewModel.vehicle.annualDistance) { viewModel.updateFuelEstimate() }
+                .onChange(of: viewModel.vehicle.fuelEfficiency) { viewModel.updateFuelEstimate() }
+                .onChange(of: viewModel.vehicle.fuelPricePerUnit) { viewModel.updateFuelEstimate() }
+
+                // Computed fuel display
+                HStack {
+                    Text("Estimated Fuel Cost")
+                        .font(.system(size: 12))
+                        .foregroundStyle(TCTheme.muted)
+                    Spacer()
+                    Text(TCTheme.formatCurrency(viewModel.vehicle.fuel) + "/mo")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundStyle(TCTheme.good)
+                }
+                .padding(.horizontal, 14)
+            }
+        }
+        .padding(.bottom, 10)
+        .animation(.spring(response: 0.3), value: viewModel.vehicle.useFuelEstimator)
     }
 
     private var runningCostBar: some View {

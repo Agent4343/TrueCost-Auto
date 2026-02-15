@@ -11,6 +11,13 @@ struct CalculationResult: Equatable {
     let smartScore: SmartScoreRating
     let smartScoreValue: Double
 
+    // Depreciation
+    let monthlyDepreciation: Double
+    let fiveYearDepreciation: Double
+
+    // Daily cost
+    let dailyCost: Double
+
     // Extra payment scenario
     let monthsSavedWithExtra: Int
     let interestSavedWithExtra: Double
@@ -18,6 +25,9 @@ struct CalculationResult: Equatable {
 
     // Amortization
     let amortizationSchedule: [AmortizationEntry]
+
+    // Year-by-year projection
+    let yearProjections: [YearProjection]
 }
 
 struct AmortizationEntry: Identifiable, Equatable {
@@ -27,6 +37,15 @@ struct AmortizationEntry: Identifiable, Equatable {
     let principal: Double
     let interest: Double
     let remainingBalance: Double
+}
+
+struct YearProjection: Identifiable, Equatable {
+    let id: Int
+    let year: Int
+    let vehicleValue: Double
+    let cumulativePaid: Double
+    let loanBalance: Double
+    let equity: Double
 }
 
 struct ComparisonDelta {

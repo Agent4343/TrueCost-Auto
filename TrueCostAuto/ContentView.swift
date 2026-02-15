@@ -3,208 +3,203 @@ import SwiftUI
 struct ContentView: View {
     @Environment(VehicleStore.self) private var store
     @Environment(VehicleViewModel.self) private var viewModel
-    @State private var showOnboarding = false
-    @State private var selectedTab: Tab = .calculator
 
-    enum Tab: String, CaseIterable {
-        case calculator = "Calculator"
-        case saved = "Saved"
-    }
+    @State private var showOnboarding = false
+    @State private var selectedTab = 0
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                backgroundGradient
-                    .ignoresSafeArea()
-
-                TabView(selection: $selectedTab) {
-                    calculatorView
-                        .tag(Tab.calculator)
-                        .tabItem {
-                            Label("Calculator", systemImage: "function")
-                        }
-
-                    SavedVehiclesView()
-                        .tag(Tab.saved)
-                        .tabItem {
-                            Label("Saved", systemImage: "bookmark.fill")
-                        }
-                }
-                .tint(TCTheme.accent)
-
-                // Save toast overlay
-                if viewModel.showSaveToast {
-                    VStack {
-                        saveToast
-                        Spacer()
+        ZStack {
+            TabView(selection: $selectedTab) {
+                // Calculator tab
+                calculatorTab
+                    .tabItem {
+                        Image(systemName: "function")
+                        Text("Calculator")
                     }
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(100)
+                    .tag(0)
+
+                // Saved tab
+                NavigationStack {
+                    SavedVehiclesView()
                 }
+                .tabItem {
+                    Image(systemName: "bookmark.fill")
+                    Text("Saved")
+                }
+                .tag(1)
+
+                // Settings tab
+                NavigationStack {
+                    SettingsView()
+                }
+                .tabItem {
+                    Image(systemName: "gearshape.fill")
+                    Text("Settings")
+                }
+                .tag(2)
+            }
+            .tint(TCTheme.accent)
+
+            // Save toast
+            if viewModel.showSaveToast {
+                VStack {
+                    Spacer()
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(TCTheme.good)
+                        Text("Vehicle saved")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(TCTheme.text)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(TCTheme.panel)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule().stroke(TCTheme.good.opacity(0.3), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 12, y: 6)
+                    .padding(.bottom, 100)
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .sheet(isPresented: $showOnboarding) {
-            OnboardingView()
-        }
         .onAppear {
-            configureTabBarAppearance()
+            configureTabBar()
             if !store.hasShownOnboarding {
                 showOnboarding = true
                 store.markOnboardingShown()
             }
         }
-    }
-
-    @ViewBuilder
-    private var calculatorView: some View {
-        ScrollView {
-            VStack(spacing: 18) {
-                headerBar
-
-                if viewModel.showResults, viewModel.result != nil {
-                    ResultsView()
-                        .transition(.move(edge: .trailing).combined(with: .opacity))
-                } else {
-                    VehicleInputView()
-                        .transition(.move(edge: .leading).combined(with: .opacity))
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 40)
+        .sheet(isPresented: $showOnboarding) {
+            OnboardingView()
         }
-        .scrollDismissesKeyboard(.interactively)
-        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: viewModel.showResults)
     }
 
+    // MARK: - Calculator Tab
+    private var calculatorTab: some View {
+        ZStack {
+            backgroundGradient
+                .ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: 16) {
+                    headerBar
+
+                    if viewModel.showResults {
+                        ResultsView()
+
+                        // Edit / recalculate
+                        Button {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                                viewModel.showResults = false
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 13))
+                                Text("Edit & Recalculate")
+                                    .font(.system(size: 14, weight: .semibold))
+                            }
+                            .foregroundStyle(TCTheme.accent)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(TCTheme.panelAlt)
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(TCTheme.accent.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        VehicleInputView()
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 32)
+            }
+        }
+    }
+
+    // MARK: - Header
     private var headerBar: some View {
         HStack(spacing: 12) {
-            // Logo
-            AppLogo(size: 42)
-                .shadow(color: TCTheme.accent.opacity(0.18), radius: 10, y: 5)
+            AppLogo(size: 36)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("TrueCost Auto")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: 17, weight: .bold))
                     .foregroundStyle(TCTheme.text)
-                Text("See the real monthly cost.")
-                    .font(.system(size: 12))
+                Text("See the real cost")
+                    .font(.system(size: 11))
                     .foregroundStyle(TCTheme.muted)
             }
 
             Spacer()
 
             // Currency toggle
-            currencyToggle
+            Menu {
+                ForEach(CurrencyRegion.allCases, id: \.self) { region in
+                    Button {
+                        viewModel.setCurrency(region)
+                    } label: {
+                        HStack {
+                            Text(region.rawValue)
+                            if viewModel.currency == region {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            } label: {
+                Text(viewModel.currency.rawValue)
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundStyle(TCTheme.accent)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(TCTheme.accent.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(TCTheme.accent.opacity(0.2), lineWidth: 1)
+                    )
+            }
 
+            // New / edit toggle
             if viewModel.showResults {
                 Button {
-                    viewModel.showResults = false
+                    viewModel.reset()
                 } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.left")
-                        Text("Edit")
-                    }
-                    .font(.system(size: 13, weight: .medium))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(TCTheme.panelAlt.opacity(0.7))
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(TCTheme.line, lineWidth: 1)
-                    )
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(TCTheme.accent)
                 }
-                .tint(TCTheme.text)
             }
         }
-        .padding(16)
-        .background(TCTheme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(TCTheme.line, lineWidth: 1)
-        )
+        .padding(.top, 4)
     }
 
-    private var currencyToggle: some View {
-        HStack(spacing: 0) {
-            ForEach(CurrencyRegion.allCases, id: \.self) { region in
-                Button {
-                    withAnimation(.spring(response: 0.3)) {
-                        viewModel.setCurrency(region)
-                    }
-                } label: {
-                    Text(region.symbol)
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(viewModel.currency == region ? .white : TCTheme.muted)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(
-                            viewModel.currency == region
-                                ? AnyShapeStyle(TCTheme.accentGradient)
-                                : AnyShapeStyle(Color.clear)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(3)
-        .background(TCTheme.panelAlt.opacity(0.75))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(TCTheme.line, lineWidth: 1)
-        )
-    }
-
-    private var saveToast: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 18))
-                .foregroundStyle(.white)
-            Text("Vehicle Saved!")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(.white)
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 14)
-        .background(
-            Capsule()
-                .fill(TCTheme.good)
-                .shadow(color: TCTheme.good.opacity(0.3), radius: 12, y: 4)
-        )
-        .padding(.top, 8)
-    }
-
+    // MARK: - Background
     private var backgroundGradient: some View {
         ZStack {
             TCTheme.bg
             RadialGradient(
-                colors: [TCTheme.accent.opacity(0.15), .clear],
+                colors: [TCTheme.accent.opacity(0.08), .clear],
                 center: .topLeading,
-                startRadius: 0,
-                endRadius: 600
-            )
-            RadialGradient(
-                colors: [TCTheme.accent2.opacity(0.12), .clear],
-                center: .topTrailing,
                 startRadius: 0,
                 endRadius: 500
             )
         }
     }
 
-    private func configureTabBarAppearance() {
-        let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(TCTheme.panel.opacity(0.95))
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(TCTheme.muted)
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: UIColor(TCTheme.muted)
-        ]
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
+    // MARK: - Tab Bar Config
+    private func configureTabBar() {
+        let tabAppearance = UITabBarAppearance()
+        tabAppearance.configureWithOpaqueBackground()
+        tabAppearance.backgroundColor = UIColor(TCTheme.bg)
+        UITabBar.appearance().standardAppearance = tabAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
     }
 }
 
@@ -212,4 +207,5 @@ struct ContentView: View {
     ContentView()
         .environment(VehicleStore())
         .environment(VehicleViewModel())
+        .preferredColorScheme(.dark)
 }

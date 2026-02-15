@@ -21,10 +21,14 @@ struct TrueCostHeroCard: View {
                         .scaleEffect(animateValue ? 1.0 : 0.8)
                         .opacity(animateValue ? 1 : 0)
 
-                    Text("Payment + insurance + fuel + maintenance")
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color(red: 0.812, green: 0.878, blue: 1.0))
-                        .lineLimit(2)
+                    HStack(spacing: 8) {
+                        Text("~\(TCTheme.formatCurrencyWithCents(result.dailyCost))/day")
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .foregroundStyle(TCTheme.accent)
+                        Text("incl. depreciation")
+                            .font(.system(size: 11))
+                            .foregroundStyle(TCTheme.muted)
+                    }
                 }
 
                 Spacer()

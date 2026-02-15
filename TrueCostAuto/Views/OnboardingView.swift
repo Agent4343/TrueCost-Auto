@@ -9,7 +9,7 @@ struct OnboardingView: View {
         (
             "dollarsign.circle.fill",
             "See the Real Cost",
-            "Your car payment is just the start. TrueCost Auto shows you the full monthly picture — payment, insurance, fuel, maintenance, and more.",
+            "Your car payment is just the start. TrueCost Auto shows you the full monthly picture — payment, insurance, fuel, maintenance, and depreciation.",
             TCTheme.accent
         ),
         (
@@ -19,9 +19,9 @@ struct OnboardingView: View {
             TCTheme.good
         ),
         (
-            "arrow.left.arrow.right",
-            "Compare & Decide",
-            "Save multiple vehicles and compare them side-by-side. See which one truly costs less over 5 years — not just which has the lowest sticker price.",
+            "chart.bar.xaxis",
+            "Track & Compare",
+            "See your vehicle's value year-by-year. Save multiple vehicles and compare them side-by-side to find which one truly costs less over time.",
             TCTheme.accent2
         ),
     ]

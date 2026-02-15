@@ -4,6 +4,8 @@ import Combine
 
 @Observable
 final class VehicleViewModel {
+    private static let currencyKey = "truecost_currency"
+
     var vehicle: Vehicle = .example
     var result: CalculationResult?
     var showResults = false
@@ -20,16 +22,31 @@ final class VehicleViewModel {
     var compareResults: [UUID: CalculationResult] = [:]
 
     init() {
+        if let raw = UserDefaults.standard.string(forKey: Self.currencyKey),
+           let region = CurrencyRegion(rawValue: raw) {
+            currency = region
+            vehicle.salesTaxRate = region.defaultTaxRate
+            vehicle.annualDistance = region.defaultAnnualDistance
+            vehicle.fuelEfficiency = region.defaultFuelEfficiency
+            vehicle.fuelPricePerUnit = region.defaultFuelPrice
+        }
         recalculate()
     }
 
     func recalculate() {
+        if vehicle.useFuelEstimator {
+            updateFuelEstimate()
+        }
         result = CostCalculator.calculate(for: vehicle)
     }
 
     func reset() {
         vehicle = Vehicle()
         vehicle.name = "New Vehicle"
+        vehicle.salesTaxRate = currency.defaultTaxRate
+        vehicle.annualDistance = currency.defaultAnnualDistance
+        vehicle.fuelEfficiency = currency.defaultFuelEfficiency
+        vehicle.fuelPricePerUnit = currency.defaultFuelPrice
         showResults = false
         recalculate()
     }
@@ -43,7 +60,31 @@ final class VehicleViewModel {
     func setCurrency(_ region: CurrencyRegion) {
         currency = region
         vehicle.salesTaxRate = region.defaultTaxRate
+        UserDefaults.standard.set(region.rawValue, forKey: Self.currencyKey)
+
+        if vehicle.useFuelEstimator {
+            vehicle.annualDistance = region.defaultAnnualDistance
+            vehicle.fuelEfficiency = region.defaultFuelEfficiency
+            vehicle.fuelPricePerUnit = region.defaultFuelPrice
+            updateFuelEstimate()
+        }
+
         recalculate()
+    }
+
+    func updateFuelEstimate() {
+        guard vehicle.useFuelEstimator else { return }
+        let monthly = vehicle.annualDistance / 12.0
+        let computed: Double
+        switch currency {
+        case .cad:
+            computed = monthly * vehicle.fuelEfficiency / 100.0 * vehicle.fuelPricePerUnit
+        case .usd:
+            computed = vehicle.fuelEfficiency > 0
+                ? monthly / vehicle.fuelEfficiency * vehicle.fuelPricePerUnit
+                : 0
+        }
+        vehicle.fuel = computed
     }
 
     func saveVehicle(to store: VehicleStore) {
@@ -90,8 +131,10 @@ final class VehicleViewModel {
         TrueCost Auto — \(vehicle.name)
         ================================
         True Monthly Cost: \(TCTheme.formatCurrency(r.trueMonthlyCost, symbol: sym))
+        Daily Cost: \(TCTheme.formatCurrencyWithCents(r.dailyCost, symbol: sym))
         Loan Payment: \(TCTheme.formatCurrency(r.monthlyPayment, symbol: sym))/mo
         Running Costs: \(TCTheme.formatCurrency(vehicle.totalRunningCosts, symbol: sym))/mo
+        Depreciation: \(TCTheme.formatCurrency(r.monthlyDepreciation, symbol: sym))/mo
         Total Interest: \(TCTheme.formatCurrency(r.totalInterest, symbol: sym))
         Total Paid: \(TCTheme.formatCurrency(r.totalPaid, symbol: sym))
         5-Year Cost: \(TCTheme.formatCurrency(r.fiveYearCost, symbol: sym))

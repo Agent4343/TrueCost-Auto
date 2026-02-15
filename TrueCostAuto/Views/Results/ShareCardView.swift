@@ -113,6 +113,7 @@ struct ShareCardView: View {
                 shareRow("Insurance", TCTheme.formatCurrency(vehicle.insurance) + "/mo")
                 shareRow("Fuel", TCTheme.formatCurrency(vehicle.fuel) + "/mo")
                 shareRow("Maintenance", TCTheme.formatCurrency(vehicle.maintenance) + "/mo")
+                shareRow("Depreciation", TCTheme.formatCurrency(result.monthlyDepreciation) + "/mo")
                 shareRow("Total Interest", TCTheme.formatCurrency(result.totalInterest))
             }
         }
@@ -154,8 +155,10 @@ struct ShareCardView: View {
         TrueCost Auto - \(vehicle.name)
         --------------------------------
         True Monthly Cost: \(TCTheme.formatCurrency(result.trueMonthlyCost))
+        Daily Cost: ~\(TCTheme.formatCurrencyWithCents(result.dailyCost))
         Loan Payment: \(TCTheme.formatCurrency(result.monthlyPayment))/mo
         Running Costs: \(TCTheme.formatCurrency(vehicle.totalRunningCosts))/mo
+        Depreciation: \(TCTheme.formatCurrency(result.monthlyDepreciation))/mo
         Total Interest: \(TCTheme.formatCurrency(result.totalInterest))
         Total Paid: \(TCTheme.formatCurrency(result.totalPaid))
         5-Year Cost: \(TCTheme.formatCurrency(result.fiveYearCost))

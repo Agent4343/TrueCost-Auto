@@ -19,14 +19,23 @@ struct CostCalculator {
         let totalPaidOnLoan = monthlyPayment * n
         let totalInterest = totalPaidOnLoan - principal
 
-        // True monthly cost
-        let trueMonthlyCost = monthlyPayment + vehicle.totalRunningCosts
+        // Depreciation (compound over 5 years, averaged monthly)
+        let depRate = vehicle.depreciationRate / 100.0
+        let fiveYearValue = vehicle.vehiclePrice * pow(1 - depRate, 5)
+        let fiveYearDepreciation = vehicle.vehiclePrice - fiveYearValue
+        let monthlyDepreciation = fiveYearDepreciation / 60.0
 
-        // 5-year cost = 60 months of true cost, or full loan if shorter
+        // True monthly cost (includes depreciation)
+        let trueMonthlyCost = monthlyPayment + vehicle.totalRunningCosts + monthlyDepreciation
+
+        // Daily cost
+        let dailyCost = trueMonthlyCost * 12.0 / 365.0
+
+        // 5-year cost (includes depreciation)
         let fiveYearMonths = min(60.0, n)
         let fiveYearLoan = monthlyPayment * fiveYearMonths
         let fiveYearRunning = vehicle.totalRunningCosts * 60.0
-        let fiveYearCost = fiveYearLoan + fiveYearRunning + vehicle.downPayment + vehicle.tradeInValue
+        let fiveYearCost = fiveYearLoan + fiveYearRunning + vehicle.downPayment + vehicle.tradeInValue + fiveYearDepreciation
 
         // Income percentage
         let incomePercentage: Double?
@@ -36,7 +45,7 @@ struct CostCalculator {
             incomePercentage = nil
         }
 
-        // Smart Score
+        // Smart Score (thresholds adjusted for depreciation inclusion)
         let (smartScore, smartScoreValue) = calculateSmartScore(
             trueMonthlyCost: trueMonthlyCost,
             monthlyPayment: monthlyPayment,
@@ -63,6 +72,18 @@ struct CostCalculator {
             termMonths: vehicle.loanTermMonths
         )
 
+        // Year-by-year projection
+        let projections = buildYearProjections(
+            vehiclePrice: vehicle.vehiclePrice,
+            depRate: depRate,
+            monthlyPayment: monthlyPayment,
+            monthlyRunning: vehicle.totalRunningCosts,
+            monthlyRate: monthlyRate,
+            principal: principal,
+            loanTermMonths: vehicle.loanTermMonths,
+            downPayment: vehicle.downPayment
+        )
+
         return CalculationResult(
             monthlyPayment: monthlyPayment,
             biWeeklyPayment: biWeeklyPayment,
@@ -73,10 +94,14 @@ struct CostCalculator {
             incomePercentage: incomePercentage,
             smartScore: smartScore,
             smartScoreValue: smartScoreValue,
+            monthlyDepreciation: monthlyDepreciation,
+            fiveYearDepreciation: fiveYearDepreciation,
+            dailyCost: dailyCost,
             monthsSavedWithExtra: monthsSaved,
             interestSavedWithExtra: interestSaved,
             payoffMonthsWithExtra: payoffMonths,
-            amortizationSchedule: schedule
+            amortizationSchedule: schedule,
+            yearProjections: projections
         )
     }
 
@@ -99,17 +124,17 @@ struct CostCalculator {
         // Weighted score: 0 = best, 100 = worst
         var score: Double = 0
 
-        // Cost-to-income (biggest factor: 50% weight)
-        if costToIncomeRatio <= 0.10 {
+        // Cost-to-income (50% weight) — adjusted for depreciation
+        if costToIncomeRatio <= 0.15 {
             score += 0
-        } else if costToIncomeRatio <= 0.15 {
-            score += (costToIncomeRatio - 0.10) / 0.05 * 20
-        } else if costToIncomeRatio <= 0.20 {
-            score += 20 + (costToIncomeRatio - 0.15) / 0.05 * 15
+        } else if costToIncomeRatio <= 0.22 {
+            score += (costToIncomeRatio - 0.15) / 0.07 * 20
         } else if costToIncomeRatio <= 0.30 {
-            score += 35 + (costToIncomeRatio - 0.20) / 0.10 * 10
+            score += 20 + (costToIncomeRatio - 0.22) / 0.08 * 15
+        } else if costToIncomeRatio <= 0.40 {
+            score += 35 + (costToIncomeRatio - 0.30) / 0.10 * 10
         } else {
-            score += 45 + min((costToIncomeRatio - 0.30) / 0.20 * 5, 5)
+            score += 45 + min((costToIncomeRatio - 0.40) / 0.20 * 5, 5)
         }
 
         // Interest burden (30% weight)
@@ -166,7 +191,6 @@ struct CostCalculator {
             if balance <= 0.01 { break }
         }
 
-        // Original total interest
         var origBalance = principal
         var origInterest = 0.0
         for _ in 0..<originalTerm {
@@ -208,6 +232,50 @@ struct CostCalculator {
         }
 
         return entries
+    }
+
+    private static func buildYearProjections(
+        vehiclePrice: Double,
+        depRate: Double,
+        monthlyPayment: Double,
+        monthlyRunning: Double,
+        monthlyRate: Double,
+        principal: Double,
+        loanTermMonths: Int,
+        downPayment: Double
+    ) -> [YearProjection] {
+        var projections: [YearProjection] = []
+        var loanBalance = principal
+        var cumulativePaid = downPayment
+        var monthsElapsed = 0
+
+        for year in 1...7 {
+            let vehicleValue = vehiclePrice * pow(1 - depRate, Double(year))
+
+            for _ in 0..<12 {
+                monthsElapsed += 1
+                if loanBalance > 0.01 && monthsElapsed <= loanTermMonths {
+                    let interest = loanBalance * monthlyRate
+                    let principalPaid = min(monthlyPayment - interest, loanBalance)
+                    loanBalance -= principalPaid
+                    cumulativePaid += monthlyPayment
+                }
+                cumulativePaid += monthlyRunning
+            }
+
+            let equity = vehicleValue - max(loanBalance, 0)
+
+            projections.append(YearProjection(
+                id: year,
+                year: year,
+                vehicleValue: vehicleValue,
+                cumulativePaid: cumulativePaid,
+                loanBalance: max(loanBalance, 0),
+                equity: equity
+            ))
+        }
+
+        return projections
     }
 
     static func compare(_ a: Vehicle, _ b: Vehicle) -> ComparisonDelta {

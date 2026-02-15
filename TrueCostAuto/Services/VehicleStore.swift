@@ -33,6 +33,11 @@ final class VehicleStore {
         persist()
     }
 
+    func deleteAll() {
+        savedVehicles.removeAll()
+        persist()
+    }
+
     func markOnboardingShown() {
         hasShownOnboarding = true
         UserDefaults.standard.set(true, forKey: Self.onboardingKey)

@@ -7,6 +7,7 @@ struct ResultsView: View {
     @State private var showExtraPayment = false
     @State private var showCompare = false
     @State private var showAmortization = false
+    @State private var showProjection = false
     @State private var animateIn = false
     @State private var tileAnimations = [false, false, false, false]
 
@@ -66,6 +67,9 @@ struct ResultsView: View {
             }
             .sheet(isPresented: $showAmortization) {
                 amortizationSheet(result)
+            }
+            .sheet(isPresented: $showProjection) {
+                YearProjectionView()
             }
         }
     }
@@ -154,11 +158,11 @@ struct ResultsView: View {
             .offset(y: tileAnimations[1] ? 0 : 20)
 
             BreakdownTile(
-                title: "Total Paid",
-                value: TCTheme.formatCurrency(result.totalPaid),
-                subtitle: "price + interest + tax",
-                icon: "banknote.fill",
-                color: TCTheme.accent2
+                title: "Depreciation",
+                value: TCTheme.formatCurrency(result.monthlyDepreciation) + "/mo",
+                subtitle: "\(TCTheme.formatCurrency(result.fiveYearDepreciation)) over 5 yr",
+                icon: "chart.line.downtrend.xyaxis",
+                color: TCTheme.depreciation
             )
             .opacity(tileAnimations[1] ? 1 : 0)
             .offset(y: tileAnimations[1] ? 0 : 25)
@@ -166,7 +170,7 @@ struct ResultsView: View {
             BreakdownTile(
                 title: "5-Year Cost",
                 value: TCTheme.formatCurrency(result.fiveYearCost),
-                subtitle: "incl. running costs",
+                subtitle: "total ownership cost",
                 icon: "calendar.badge.clock",
                 color: TCTheme.good
             )
@@ -202,6 +206,7 @@ struct ResultsView: View {
                 costRow("Fuel / Charging", viewModel.vehicle.fuel, result.trueMonthlyCost, TCTheme.good)
                 costRow("Maintenance", viewModel.vehicle.maintenance, result.trueMonthlyCost, TCTheme.warn)
                 costRow("Tires / Other", viewModel.vehicle.tiresAndOther, result.trueMonthlyCost, TCTheme.accent2)
+                costRow("Depreciation", result.monthlyDepreciation, result.trueMonthlyCost, TCTheme.depreciation)
             }
             .padding(14)
         }
@@ -251,6 +256,15 @@ struct ResultsView: View {
                 color: TCTheme.accent
             ) {
                 showCompare = true
+            }
+
+            actionRow(
+                title: "Ownership projection",
+                subtitle: "Year-by-year value & equity",
+                icon: "chart.bar.xaxis",
+                color: TCTheme.depreciation
+            ) {
+                showProjection = true
             }
 
             actionRow(

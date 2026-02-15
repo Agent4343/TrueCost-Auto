@@ -13,6 +13,7 @@ enum TCTheme {
     static let bad = Color(red: 1.0, green: 0.302, blue: 0.302)
     static let accent = Color(red: 0.416, green: 0.655, blue: 1.0)
     static let accent2 = Color(red: 0.643, green: 0.420, blue: 1.0)
+    static let depreciation = Color(red: 1.0, green: 0.6, blue: 0.3)
 
     static let accentGradient = LinearGradient(
         colors: [accent, accent2],
