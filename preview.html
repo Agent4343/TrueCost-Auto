@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TrueCost Auto - Interactive Preview</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0B1220;--panel:rgba(15,26,45,0.65);--panelAlt:rgba(12,22,40,0.75);
+--text:#E9EEFC;--muted:#9FB0D0;--line:#1E2B45;
+--good:#28D17C;--warn:#FFCC00;--bad:#FF4D4D;
+--accent:#6AA5FF;--accent2:#A46BFF;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;
+background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app-container{max-width:430px;margin:0 auto;min-height:100vh;position:relative;
+background:var(--bg);overflow:hidden}
+.bg-glow{position:fixed;top:0;left:0;right:0;height:400px;pointer-events:none;z-index:0;
+background:radial-gradient(ellipse at 20% 0%,rgba(106,165,255,0.08),transparent 60%),
+radial-gradient(ellipse at 80% 0%,rgba(164,107,255,0.06),transparent 60%)}
+
+/* Header */
+.header{padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.header h1{font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.currency-toggle{display:flex;gap:4px;background:var(--panelAlt);border-radius:10px;padding:3px;border:1px solid var(--line)}
+.currency-toggle button{padding:5px 12px;border:none;border-radius:8px;font-size:11px;font-weight:600;
+cursor:pointer;transition:all .2s;color:var(--muted);background:transparent}
+.currency-toggle button.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+
+/* Tabs */
+.tab-bar{display:flex;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;
+background:rgba(11,18,32,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--line);z-index:100;padding:8px 0 24px}
+.tab-bar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;
+background:none;cursor:pointer;padding:6px;transition:all .2s}
+.tab-bar button .tab-icon{font-size:20px;opacity:0.5;transition:all .2s}
+.tab-bar button .tab-label{font-size:10px;font-weight:600;color:var(--muted);transition:all .2s}
+.tab-bar button.active .tab-icon{opacity:1}
+.tab-bar button.active .tab-label{background:linear-gradient(135deg,var(--accent),var(--accent2));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* Screens */
+.screen{display:none;padding:0 16px 100px;position:relative;z-index:1}
+.screen.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+@keyframes fillBar{from{width:0}to{width:var(--target-width)}}
+
+/* Cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.card-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.card-header h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-header .icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.card-header .chevron{color:var(--muted);transition:transform .3s;font-size:12px}
+.card-header .chevron.open{transform:rotate(180deg)}
+.card-body{overflow:hidden;transition:max-height .4s cubic-bezier(0.4,0,0.2,1),opacity .3s,padding .3s;
+max-height:0;opacity:0;padding-top:0}
+.card-body.open{max-height:2000px;opacity:1;padding-top:14px}
+
+/* Fields */
+.field-group{margin-bottom:10px}
+.field-label{font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500}
+.field-row{display:flex;align-items:center;background:var(--panelAlt);border:1px solid var(--line);
+border-radius:14px;padding:0;overflow:hidden}
+.field-row input{flex:1;background:transparent;border:none;color:var(--text);font-size:15px;font-weight:500;
+padding:12px;outline:none;width:100%}
+.field-row input::placeholder{color:rgba(159,176,208,0.4)}
+.field-badge{padding:6px 12px;font-size:11px;font-weight:700;color:var(--muted);background:rgba(30,43,69,0.6);
+border-left:1px solid var(--line);white-space:nowrap}
+.computed-value{font-size:13px;color:var(--accent);font-weight:600;padding:10px 0 2px;display:flex;align-items:center;gap:6px}
+.computed-value .label{color:var(--muted);font-weight:400;font-size:11px}
+
+/* Term Picker */
+.term-picker{display:flex;gap:6px;flex-wrap:wrap;padding:4px 0}
+.term-btn{padding:8px 14px;border-radius:12px;border:1px dashed var(--line);background:transparent;
+color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .3s}
+.term-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+border:1px solid transparent;transform:scale(1.05)}
+.term-btn:hover:not(.active){border-color:var(--accent);color:var(--text)}
+
+/* Tips */
+.tips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tip{padding:4px 10px;border-radius:20px;font-size:10px;color:var(--accent);
+background:rgba(106,165,255,0.1);border:1px solid rgba(106,165,255,0.15)}
+
+/* Running Costs Bar */
+.running-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:8px}
+.running-bar .seg{transition:width .5s ease}
+
+/* Calculate Button */
+.calc-btn{width:100%;padding:16px;border:none;border-radius:16px;font-size:16px;font-weight:700;
+color:#fff;cursor:pointer;margin-top:8px;position:relative;overflow:hidden;
+background:linear-gradient(135deg,var(--accent),var(--accent2));
+box-shadow:0 4px 20px rgba(106,165,255,0.3);transition:all .2s}
+.calc-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(106,165,255,0.4)}
+.calc-btn:active{transform:scale(0.98)}
+
+/* RESULTS */
+.hero-card{background:linear-gradient(135deg,rgba(106,165,255,0.14),rgba(164,107,255,0.12));
+border:1px solid rgba(106,165,255,0.2);border-radius:22px;padding:24px;margin-bottom:16px;
+display:flex;justify-content:space-between;align-items:center;animation:scaleIn .5s ease .1s both}
+.hero-card .amount{font-size:38px;font-weight:800;letter-spacing:-1px}
+.hero-card .label{font-size:12px;color:var(--muted);margin-top:2px}
+.hero-card .sublabel{font-size:11px;color:var(--muted);margin-top:4px;opacity:0.7}
+
+/* Smart Score Badge */
+.score-badge{text-align:center;min-width:90px}
+.score-circle{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+font-size:18px;font-weight:800;margin:0 auto 6px;position:relative}
+.score-circle::after{content:'';position:absolute;inset:-3px;border-radius:50%;
+border:2px solid;opacity:0.3}
+.score-label{font-size:11px;font-weight:700}
+.score-sublabel{font-size:9px;color:var(--muted);margin-top:2px}
+
+/* Breakdown Tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.tile{background:var(--panelAlt);border:1px solid var(--line);border-radius:18px;padding:14px;
+animation:fadeInUp .4s ease both}
+.tile:nth-child(1){animation-delay:.15s}.tile:nth-child(2){animation-delay:.2s}
+.tile:nth-child(3){animation-delay:.25s}.tile:nth-child(4){animation-delay:.3s}
+.tile .tile-label{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.tile .tile-value{font-size:22px;font-weight:700}
+.tile .tile-sub{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* Monthly Breakdown */
+.breakdown-section{animation:fadeInUp .4s ease .35s both}
+.breakdown-item{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid rgba(30,43,69,0.5)}
+.breakdown-item:last-child{border:none}
+.breakdown-dot{width:8px;height:8px;border-radius:50%;margin-right:10px;flex-shrink:0}
+.breakdown-info{flex:1}
+.breakdown-name{font-size:12px;font-weight:600}
+.breakdown-bar-wrap{height:4px;background:rgba(30,43,69,0.6);border-radius:2px;margin-top:4px;overflow:hidden}
+.breakdown-bar{height:100%;border-radius:2px;transition:width 1s ease}
+.breakdown-amt{font-size:13px;font-weight:700;text-align:right;min-width:70px}
+.breakdown-pct{font-size:10px;color:var(--muted);text-align:right}
+
+/* Action Rows */
+.actions{animation:fadeInUp .4s ease .4s both}
+.action-row{display:flex;align-items:center;padding:14px;border:1px dashed var(--line);
+border-radius:16px;margin-bottom:8px;cursor:pointer;transition:all .2s;gap:12px}
+.action-row:hover{background:rgba(106,165,255,0.05);border-color:var(--accent)}
+.action-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+justify-content:center;font-size:16px;flex-shrink:0}
+.action-text{flex:1}
+.action-text h4{font-size:13px;font-weight:600}
+.action-text p{font-size:11px;color:var(--muted)}
+.action-arrow{color:var(--muted);font-size:12px}
+
+/* Save Button */
+.save-btn{width:100%;padding:14px;border:2px solid var(--good);border-radius:16px;
+background:rgba(40,209,124,0.1);color:var(--good);font-size:15px;font-weight:700;
+cursor:pointer;transition:all .2s;margin-top:8px}
+.save-btn:hover{background:rgba(40,209,124,0.2)}
+
+/* Back button */
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--accent);
+font-size:13px;font-weight:600;cursor:pointer;padding:8px 0;margin-bottom:8px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:none;
+align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex;animation:fadeIn .2s ease}
+.modal{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:430px;
+max-height:85vh;overflow-y:auto;padding:24px 20px 40px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 20px}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:16px}
+
+/* Extra Payment */
+.quick-picks{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.quick-pick{padding:8px 16px;border-radius:12px;border:1px solid var(--line);background:transparent;
+color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.quick-pick:hover,.quick-pick.active{background:linear-gradient(135deg,var(--accent),var(--accent2));
+color:#fff;border-color:transparent}
+.extra-results{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.extra-stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+.extra-stat .val{font-size:22px;font-weight:700;margin-top:4px}
+.extra-stat .lbl{font-size:11px;color:var(--muted)}
+
+/* Amortization */
+.amort-table{width:100%;border-collapse:collapse;margin-top:12px}
+.amort-table th{font-size:10px;color:var(--muted);font-weight:600;padding:8px 6px;text-align:right;
+border-bottom:1px solid var(--line)}
+.amort-table th:first-child{text-align:left}
+.amort-table td{font-size:12px;padding:8px 6px;text-align:right;border-bottom:1px solid rgba(30,43,69,0.3)}
+.amort-table td:first-child{text-align:left;color:var(--muted)}
+.amort-table .principal{color:var(--good)}
+.amort-table .interest{color:var(--warn)}
+
+/* Compare */
+.compare-vehicle{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;
+margin-bottom:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.compare-vehicle:hover{border-color:var(--accent)}
+.compare-vehicle.selected{border-color:var(--good);background:rgba(40,209,124,0.05)}
+.compare-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:flex;
+align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:12px}
+.compare-vehicle.selected .compare-check{border-color:var(--good);background:var(--good);color:#fff}
+.compare-results{margin-top:16px}
+.compare-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(30,43,69,0.4)}
+.compare-row .metric{font-size:12px;color:var(--muted)}
+.compare-row .diff{font-size:13px;font-weight:700}
+.diff.better{color:var(--good)}.diff.worse{color:var(--bad)}
+
+/* Saved Vehicles */
+.saved-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;
+margin-bottom:12px;cursor:pointer;transition:all .2s}
+.saved-card:hover{border-color:var(--accent)}
+.saved-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.saved-card-header h3{font-size:15px;font-weight:700}
+.saved-card-header .date{font-size:10px;color:var(--muted)}
+.saved-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.saved-metric{background:var(--panelAlt);border-radius:10px;padding:8px 10px}
+.saved-metric .sm-label{font-size:10px;color:var(--muted)}
+.saved-metric .sm-value{font-size:14px;font-weight:700;margin-top:2px}
+.delete-btn{background:none;border:none;color:var(--bad);cursor:pointer;font-size:16px;padding:4px 8px}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:16px;opacity:0.5}
+.empty-state p{font-size:14px;line-height:1.6}
+
+/* Share Card */
+.share-card{background:linear-gradient(135deg,#0d1a2e,#131f35);border:1px solid var(--line);
+border-radius:20px;padding:24px;margin-bottom:16px}
+.share-card h3{font-size:12px;color:var(--accent);font-weight:700;margin-bottom:4px}
+.share-card .share-name{font-size:20px;font-weight:800;margin-bottom:16px}
+.share-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.share-metric .sh-label{font-size:10px;color:var(--muted)}
+.share-metric .sh-value{font-size:18px;font-weight:700}
+.share-btns{display:flex;gap:10px;margin-top:16px}
+.share-btns button{flex:1;padding:12px;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.share-btns .btn-share{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff}
+.share-btns .btn-copy{background:transparent;border:1px solid var(--line);color:var(--text)}
+
+/* Onboarding */
+.onboarding{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;
+align-items:center;justify-content:center;text-align:center;padding:40px 30px}
+.onboarding.hidden{display:none}
+.onboard-logo{width:80px;height:80px;border-radius:24px;
+background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;
+justify-content:center;font-size:32px;font-weight:900;color:#fff;margin-bottom:40px;
+box-shadow:0 8px 32px rgba(106,165,255,0.3)}
+.onboard-title{font-size:24px;font-weight:800;margin-bottom:12px}
+.onboard-desc{font-size:14px;color:var(--muted);line-height:1.6;max-width:300px}
+.onboard-dots{display:flex;gap:8px;margin:40px 0}
+.onboard-dot{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .3s}
+.onboard-dot.active{background:var(--accent);width:24px;border-radius:4px}
+.onboard-btns{display:flex;gap:12px;margin-top:20px}
+.onboard-skip{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:12px 24px}
+.onboard-next{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;
+font-size:14px;font-weight:700;padding:12px 32px;border-radius:14px;cursor:pointer}
+
+/* Toast */
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-100px);
+background:var(--good);color:#fff;padding:12px 24px;border-radius:14px;font-size:13px;font-weight:700;
+z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="app-container">
+
+<!-- Toast -->
+<div class="toast" id="toast">Saved!</div>
+
+<!-- Onboarding -->
+<div class="onboarding" id="onboarding">
+<div class="onboard-logo">TC</div>
+<div class="onboard-title" id="onboard-title">See the Real Cost</div>
+<div class="onboard-desc" id="onboard-desc">Go beyond the sticker price. See your true monthly cost including loan payments, insurance, fuel, and maintenance.</div>
+<div class="onboard-dots">
+<div class="onboard-dot active" id="dot0"></div>
+<div class="onboard-dot" id="dot1"></div>
+<div class="onboard-dot" id="dot2"></div>
+</div>
+<div class="onboard-btns">
+<button class="onboard-skip" id="onboard-skip" onclick="finishOnboarding()">Skip</button>
+<button class="onboard-next" onclick="nextOnboard()">Next</button>
+</div>
+</div>
+
+<!-- Header -->
+<div class="header">
+<h1>TrueCost Auto</h1>
+<div class="currency-toggle">
+<button class="active" id="btn-cad" onclick="setCurrency('CAD')">CA$</button>
+<button id="btn-usd" onclick="setCurrency('USD')">$</button>
+</div>
+</div>
+
+<!-- Calculator Screen -->
+<div class="screen active" id="screen-calc">
+
+<!-- Vehicle Name -->
+<div class="card">
+<div class="card-header" onclick="toggleCard(this)">
+<h3><span class="icon" style="background:rgba(106,165,255,0.15);color:var(--accent)">&#128663;</span> Vehicle Name</h3>
+<span class="chevron open">&#9660;</span>
+</div>
+<div class="card-body open">
+<div class="field-row">
+<input type="text" id="vehicleName" value="New Vehicle" placeholder="e.g. 2024 Honda Civic">
+</div>
+</div>
+</div>
+
+<!-- Pricing -->
+<div class="card">
+<div class="card-header" onclick="toggleCard(this)">
+<h3><span class="icon" style="background:rgba(40,209,124,0.12);color:var(--good)">&#128176;</span> Pricing</h3>
+<span class="chevron open">&#9660;</span>
+</div>
+<div class="card-body open">
+<div class="field-group"><div class="field-label">Vehicle Price</div>
+<div class="field-row"><input type="text" id="vehiclePrice" value="38,995.00" oninput="calcFinanced()"><div class="field-badge" id="curr-badge-1">CA$</div></div></div>
+<div class="field-group"><div class="field-label">Fees & Extras</div>
+<div class="field-row"><input type="text" id="fees" value="1,499.00" oninput="calcFinanced()"><div class="field-badge" id="curr-badge-2">CA$</div></div></div>
+<div class="field-group"><div class="field-label">Down Payment</div>
+<div class="field-row"><input type="text" id="downPayment" value="2,000.00" oninput="calcFinanced()"><div class="field-badge" id="curr-badge-3">CA$</div></div></div>
+<div class="field-group"><div class="field-label">Trade-In Value</div>
+<div class="field-row"><input type="text" id="tradeIn" value="0.00" oninput="calcFinanced()"><div class="field-badge" id="curr-badge-4">CA$</div></div></div>
+<div class="computed-value"><span class="label">Amount to Finance (incl. tax):</span> <span id="amtFinanced">$44,318.10</span></div>
+</div>
+</div>
+
+<!-- Loan Details -->
+<div class="card">
+<div class="card-header" onclick="toggleCard(this)">
+<h3><span class="icon" style="background:rgba(255,204,0,0.12);color:var(--warn)">&#128200;</span> Loan Details</h3>
+<span class="chevron open">&#9660;</span>
+</div>
+<div class="card-body open">
+<div class="field-group"><div class="field-label">Interest Rate (APR)</div>
+<div class="field-row"><input type="text" id="interestRate" value="6.99"><div class="field-badge">%</div></div></div>
+<div class="field-group"><div class="field-label">Sales Tax Rate</div>
+<div class="field-row"><input type="text" id="taxRate" value="15.00" oninput="calcFinanced()"><div class="field-badge">%</div></div></div>
+<div class="field-group"><div class="field-label">Loan Term</div>
+<div class="term-picker">
+<button class="term-btn" onclick="setTerm(24)">24 mo</button>
+<button class="term-btn" onclick="setTerm(36)">36 mo</button>
+<button class="term-btn" onclick="setTerm(48)">48 mo</button>
+<button class="term-btn" onclick="setTerm(60)">60 mo</button>
+<button class="term-btn" onclick="setTerm(72)">72 mo</button>
+<button class="term-btn active" onclick="setTerm(84)">84 mo</button>
+<button class="term-btn" onclick="setTerm(96)">96 mo</button>
+</div></div>
+<div class="field-group"><div class="field-label">Monthly Income (optional, for Smart Score)</div>
+<div class="field-row"><input type="text" id="monthlyIncome" value="7,000.00"><div class="field-badge" id="curr-badge-5">CA$</div></div></div>
+<div class="tips">
+<span class="tip">Bi-weekly view included</span>
+<span class="tip">Extra payment scenarios</span>
+<span class="tip">Amortization breakdown</span>
+</div>
+</div>
+</div>
+
+<!-- Running Costs -->
+<div class="card">
+<div class="card-header" onclick="toggleCard(this)">
+<h3><span class="icon" style="background:rgba(164,107,255,0.12);color:var(--accent2)">&#9981;</span> Monthly Running Costs</h3>
+<span class="chevron open">&#9660;</span>
+</div>
+<div class="card-body open">
+<div class="field-group"><div class="field-label">Insurance</div>
+<div class="field-row"><input type="text" id="insurance" value="190.00" oninput="updateRunningBar()"><div class="field-badge">/mo</div></div></div>
+<div class="field-group"><div class="field-label">Fuel / Charging</div>
+<div class="field-row"><input type="text" id="fuel" value="240.00" oninput="updateRunningBar()"><div class="field-badge">/mo</div></div></div>
+<div class="field-group"><div class="field-label">Maintenance</div>
+<div class="field-row"><input type="text" id="maintenance" value="60.00" oninput="updateRunningBar()"><div class="field-badge">/mo</div></div></div>
+<div class="field-group"><div class="field-label">Tires / Other</div>
+<div class="field-row"><input type="text" id="tires" value="30.00" oninput="updateRunningBar()"><div class="field-badge">/mo</div></div></div>
+<div class="running-bar" id="runningBar">
+<div class="seg" style="background:var(--accent);width:36.5%"></div>
+<div class="seg" style="background:var(--good);width:46.2%"></div>
+<div class="seg" style="background:var(--warn);width:11.5%"></div>
+<div class="seg" style="background:var(--accent2);width:5.8%"></div>
+</div>
+<div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+<span style="font-size:10px;color:var(--accent)">&#9679; Insurance</span>
+<span style="font-size:10px;color:var(--good)">&#9679; Fuel</span>
+<span style="font-size:10px;color:var(--warn)">&#9679; Maint.</span>
+<span style="font-size:10px;color:var(--accent2)">&#9679; Tires</span>
+</div>
+</div>
+</div>
+
+<!-- Calculate Button -->
+<button class="calc-btn" onclick="calculate()">&#10024; Calculate True Cost</button>
+</div>
+
+<!-- Results Screen -->
+<div class="screen" id="screen-results">
+<button class="back-btn" onclick="showScreen('calc')">&#8592; Edit Vehicle</button>
+
+<!-- Hero Card -->
+<div class="hero-card" id="heroCard">
+<div>
+<div class="label">True Monthly Cost</div>
+<div class="amount" id="trueCost">$0</div>
+<div class="sublabel">Payment + insurance + fuel + maintenance</div>
+</div>
+<div class="score-badge" id="scoreBadge"></div>
+</div>
+
+<!-- Tiles -->
+<div class="tiles" id="tiles"></div>
+
+<!-- Monthly Breakdown -->
+<div class="card breakdown-section" id="breakdownSection"></div>
+
+<!-- Actions -->
+<div class="actions">
+<div class="action-row" onclick="openModal('compare')">
+<div class="action-icon" style="background:rgba(106,165,255,0.12);color:var(--accent)">&#9878;</div>
+<div class="action-text"><h4>Compare vs another car</h4><p>Side-by-side cost comparison</p></div>
+<span class="action-arrow">&#8250;</span>
+</div>
+<div class="action-row" onclick="openModal('share')">
+<div class="action-icon" style="background:rgba(40,209,124,0.12);color:var(--good)">&#128228;</div>
+<div class="action-text"><h4>Share summary</h4><p>Export a clean card</p></div>
+<span class="action-arrow">&#8250;</span>
+</div>
+<div class="action-row" onclick="openModal('extra')">
+<div class="action-icon" style="background:rgba(255,204,0,0.12);color:var(--warn)">&#9889;</div>
+<div class="action-text"><h4>Extra payment scenario</h4><p>See how extra payments save you money</p></div>
+<span class="action-arrow">&#8250;</span>
+</div>
+<div class="action-row" onclick="openModal('amort')">
+<div class="action-icon" style="background:rgba(164,107,255,0.12);color:var(--accent2)">&#128203;</div>
+<div class="action-text"><h4>Amortization schedule</h4><p>Month-by-month payment breakdown</p></div>
+<span class="action-arrow">&#8250;</span>
+</div>
+</div>
+
+<button class="save-btn" onclick="saveVehicle()">&#10003; Save Vehicle</button>
+</div>
+
+<!-- Saved Screen -->
+<div class="screen" id="screen-saved">
+<h2 style="font-size:20px;font-weight:800;margin-bottom:16px">Saved Vehicles</h2>
+<div id="savedList">
+<div class="empty-state">
+<div class="empty-icon">&#128663;</div>
+<p>No vehicles saved yet.<br>Calculate a vehicle's true cost and tap Save to add it here.</p>
+</div>
+</div>
+</div>
+
+</div><!-- end app-container -->
+
+<!-- Modals -->
+<div class="modal-overlay" id="modal-extra" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+<div class="modal-handle"></div>
+<h2>&#9889; Extra Payment Scenario</h2>
+<div class="field-label">Extra Monthly Payment</div>
+<div class="field-row" style="margin-bottom:8px"><input type="text" id="extraPayment" value="200" oninput="calcExtra()"><div class="field-badge">/mo</div></div>
+<div class="quick-picks">
+<button class="quick-pick" onclick="setExtra(50)">$50</button>
+<button class="quick-pick" onclick="setExtra(100)">$100</button>
+<button class="quick-pick active" onclick="setExtra(200)">$200</button>
+<button class="quick-pick" onclick="setExtra(300)">$300</button>
+<button class="quick-pick" onclick="setExtra(500)">$500</button>
+</div>
+<div class="extra-results" id="extraResults"></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal-amort" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+<div class="modal-handle"></div>
+<h2>&#128203; Amortization Schedule</h2>
+<div id="amortBody"></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal-compare" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+<div class="modal-handle"></div>
+<h2>&#9878; Compare Vehicles</h2>
+<div id="compareBody">
+<p style="color:var(--muted);font-size:13px">Save at least one other vehicle first, then compare side-by-side.</p>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modal-share" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+<div class="modal-handle"></div>
+<h2>&#128228; Share Summary</h2>
+<div id="shareBody"></div>
+</div>
+</div>
+
+<!-- Tab Bar -->
+<div class="tab-bar">
+<button class="active" id="tab-calc" onclick="switchTab('calc')">
+<span class="tab-icon">&#128178;</span>
+<span class="tab-label">Calculator</span>
+</button>
+<button id="tab-saved" onclick="switchTab('saved')">
+<span class="tab-icon">&#128278;</span>
+<span class="tab-label">Saved</span>
+</button>
+</div>
+
+<script>
+// State
+let currency = 'CAD';
+let currSymbol = 'CA$';
+let loanTerm = 84;
+let savedVehicles = [];
+let currentResult = null;
+let amortSchedule = [];
+let onboardPage = 0;
+
+const onboardData = [
+  { title: 'See the Real Cost', desc: 'Go beyond the sticker price. See your true monthly cost including loan payments, insurance, fuel, and maintenance.' },
+  { title: 'Smart Score', desc: 'Get an instant affordability rating based on your income, interest burden, and loan term. Know before you sign.' },
+  { title: 'Compare & Decide', desc: 'Save multiple vehicles and compare them side-by-side. Make confident, data-driven decisions.' }
+];
+
+// Helpers
+function parseNum(id) {
+  return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
+}
+function fmt(n) {
+  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtShort(n) {
+  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+// Currency
+function setCurrency(c) {
+  currency = c;
+  currSymbol = c === 'CAD' ? 'CA$' : '$';
+  document.getElementById('btn-cad').classList.toggle('active', c === 'CAD');
+  document.getElementById('btn-usd').classList.toggle('active', c === 'USD');
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('curr-badge-' + i);
+    if (el) el.textContent = currSymbol;
+  }
+  if (c === 'USD') document.getElementById('taxRate').value = '7.00';
+  else document.getElementById('taxRate').value = '15.00';
+  calcFinanced();
+}
+
+// Cards
+function toggleCard(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+// Term
+function setTerm(t) {
+  loanTerm = t;
+  document.querySelectorAll('.term-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === t + ' mo');
+  });
+}
+
+// Amount financed
+function calcFinanced() {
+  const price = parseNum('vehiclePrice');
+  const fees = parseNum('fees');
+  const down = parseNum('downPayment');
+  const trade = parseNum('tradeIn');
+  const tax = parseNum('taxRate');
+  const subtotal = price + fees - down - trade;
+  const taxAmt = subtotal * (tax / 100);
+  const total = subtotal + taxAmt;
+  document.getElementById('amtFinanced').textContent = currSymbol + fmt(Math.max(total, 0));
+}
+
+// Running costs bar
+function updateRunningBar() {
+  const ins = parseNum('insurance');
+  const fuel = parseNum('fuel');
+  const maint = parseNum('maintenance');
+  const tires = parseNum('tires');
+  const total = ins + fuel + maint + tires;
+  if (total === 0) return;
+  const bar = document.getElementById('runningBar');
+  bar.innerHTML = `
+    <div class="seg" style="background:var(--accent);width:${(ins/total*100)}%"></div>
+    <div class="seg" style="background:var(--good);width:${(fuel/total*100)}%"></div>
+    <div class="seg" style="background:var(--warn);width:${(maint/total*100)}%"></div>
+    <div class="seg" style="background:var(--accent2);width:${(tires/total*100)}%"></div>
+  `;
+}
+
+// Core calculation
+function calculate() {
+  const price = parseNum('vehiclePrice');
+  const fees = parseNum('fees');
+  const down = parseNum('downPayment');
+  const trade = parseNum('tradeIn');
+  const taxRate = parseNum('taxRate');
+  const apr = parseNum('interestRate');
+  const income = parseNum('monthlyIncome');
+  const ins = parseNum('insurance');
+  const fuel = parseNum('fuel');
+  const maint = parseNum('maintenance');
+  const tires = parseNum('tires');
+
+  const subtotal = price + fees - down - trade;
+  const tax = subtotal * (taxRate / 100);
+  const principal = Math.max(subtotal + tax, 0);
+  const n = loanTerm;
+  const r = apr / 100 / 12;
+
+  let monthlyPayment;
+  if (r > 0) {
+    monthlyPayment = principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  } else {
+    monthlyPayment = n > 0 ? principal / n : 0;
+  }
+
+  const biWeekly = monthlyPayment * 12 / 26;
+  const totalPaid = monthlyPayment * n;
+  const totalInterest = totalPaid - principal;
+  const runningCosts = ins + fuel + maint + tires;
+  const trueMonthlyCost = monthlyPayment + runningCosts;
+
+  const loanPortion = monthlyPayment * Math.min(60, n);
+  const runningPortion = runningCosts * 60;
+  const fiveYearCost = loanPortion + runningPortion + down;
+
+  // Smart Score
+  let score = 100;
+  if (income > 0) {
+    const costToIncome = trueMonthlyCost / income;
+    if (costToIncome > 0.30) score -= 50;
+    else if (costToIncome > 0.20) score -= 35 + (costToIncome - 0.20) / 0.10 * 10;
+    else if (costToIncome > 0.15) score -= 20 + (costToIncome - 0.15) / 0.05 * 15;
+    else if (costToIncome > 0.10) score -= (costToIncome - 0.10) / 0.05 * 20;
+  }
+  const ipr = principal > 0 ? totalInterest / principal : 0;
+  if (ipr > 0.30) score -= 30;
+  else if (ipr > 0.15) score -= 15 + (ipr - 0.15) / 0.15 * 10;
+  else if (ipr > 0.05) score -= (ipr - 0.05) / 0.10 * 15;
+
+  score -= Math.max(n - 60, 0) / 36 * 20;
+  score = Math.max(0, Math.min(100, score));
+
+  let rating, ratingDesc, ratingColor;
+  if (score >= 80) { rating = 'Excellent'; ratingDesc = 'Well within budget'; ratingColor = 'var(--good)'; }
+  else if (score >= 60) { rating = 'Reasonable'; ratingDesc = 'Manageable for most'; ratingColor = 'var(--good)'; }
+  else if (score >= 40) { rating = 'Stretch'; ratingDesc = 'Tight but doable'; ratingColor = 'var(--warn)'; }
+  else if (score >= 20) { rating = 'Risky'; ratingDesc = 'Could cause stress'; ratingColor = 'var(--bad)'; }
+  else { rating = 'Overextended'; ratingDesc = 'Likely unaffordable'; ratingColor = 'var(--bad)'; }
+
+  const incPct = income > 0 ? (trueMonthlyCost / income * 100) : null;
+
+  // Amortization
+  amortSchedule = [];
+  let bal = principal;
+  let totInt = 0;
+  for (let m = 1; m <= n; m++) {
+    const intCharge = bal * r;
+    const prinPaid = Math.min(monthlyPayment - intCharge, bal);
+    bal = Math.max(bal - prinPaid, 0);
+    totInt += intCharge;
+    amortSchedule.push({ month: m, payment: monthlyPayment, principal: prinPaid, interest: intCharge, balance: bal });
+  }
+
+  currentResult = {
+    monthlyPayment, biWeekly, totalInterest, totalPaid, trueMonthlyCost,
+    fiveYearCost, score, rating, ratingDesc, ratingColor, incPct,
+    principal, n, r, ins, fuel, maint, tires, runningCosts
+  };
+
+  renderResults();
+  showScreen('results');
+  calcExtra();
+}
+
+function renderResults() {
+  const R = currentResult;
+
+  // Hero
+  document.getElementById('trueCost').textContent = currSymbol + fmtShort(R.trueMonthlyCost);
+
+  // Score badge
+  document.getElementById('scoreBadge').innerHTML = `
+    <div class="score-circle" style="background:${R.ratingColor}22;color:${R.ratingColor}">
+      ${Math.round(R.score)}
+      <style>.score-circle::after{border-color:${R.ratingColor} !important}</style>
+    </div>
+    <div class="score-label" style="color:${R.ratingColor}">${R.rating}</div>
+    <div class="score-sublabel">${R.ratingDesc}</div>
+    ${R.incPct !== null ? `<div class="score-sublabel">${R.incPct.toFixed(1)}% of income</div>` : ''}
+  `;
+
+  // Tiles
+  document.getElementById('tiles').innerHTML = `
+    <div class="tile"><div class="tile-label">&#128179; Loan Payment</div>
+      <div class="tile-value">${currSymbol}${fmtShort(R.monthlyPayment)}</div>
+      <div class="tile-sub">Bi-weekly: ${currSymbol}${fmt(R.biWeekly)}</div></div>
+    <div class="tile"><div class="tile-label">&#128200; Total Interest</div>
+      <div class="tile-value">${currSymbol}${fmtShort(R.totalInterest)}</div>
+      <div class="tile-sub">Over ${R.n} months</div></div>
+    <div class="tile"><div class="tile-label">&#128176; Total Paid</div>
+      <div class="tile-value">${currSymbol}${fmtShort(R.totalPaid)}</div>
+      <div class="tile-sub">Price + interest + tax</div></div>
+    <div class="tile"><div class="tile-label">&#128197; 5-Year Cost</div>
+      <div class="tile-value">${currSymbol}${fmtShort(R.fiveYearCost)}</div>
+      <div class="tile-sub">Including running costs</div></div>
+  `;
+
+  // Monthly breakdown
+  const items = [
+    { name: 'Loan Payment', amount: R.monthlyPayment, color: 'var(--accent)' },
+    { name: 'Insurance', amount: R.ins, color: 'var(--accent)' },
+    { name: 'Fuel / Charging', amount: R.fuel, color: 'var(--good)' },
+    { name: 'Maintenance', amount: R.maint, color: 'var(--warn)' },
+    { name: 'Tires / Other', amount: R.tires, color: 'var(--accent2)' }
+  ];
+
+  let breakdownHTML = '<div style="padding:2px 0"><div style="font-size:14px;font-weight:700;margin-bottom:12px">Monthly Breakdown</div>';
+  items.forEach(item => {
+    const pct = R.trueMonthlyCost > 0 ? (item.amount / R.trueMonthlyCost * 100) : 0;
+    breakdownHTML += `
+      <div class="breakdown-item">
+        <div class="breakdown-dot" style="background:${item.color}"></div>
+        <div class="breakdown-info">
+          <div class="breakdown-name">${item.name}</div>
+          <div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:${pct}%;background:${item.color}"></div></div>
+        </div>
+        <div style="text-align:right">
+          <div class="breakdown-amt">${currSymbol}${fmtShort(item.amount)}</div>
+          <div class="breakdown-pct">${pct.toFixed(1)}%</div>
+        </div>
+      </div>`;
+  });
+  breakdownHTML += '</div>';
+  document.getElementById('breakdownSection').innerHTML = breakdownHTML;
+}
+
+// Extra payment
+function setExtra(amt) {
+  document.getElementById('extraPayment').value = amt;
+  document.querySelectorAll('.quick-pick').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  calcExtra();
+}
+
+function calcExtra() {
+  if (!currentResult) return;
+  const R = currentResult;
+  const extra = parseFloat(document.getElementById('extraPayment').value) || 0;
+  const totalPmt = R.monthlyPayment + extra;
+
+  let bal = R.principal;
+  let months = 0;
+  let totalInt = 0;
+
+  while (bal > 0.01 && months < R.n * 2) {
+    months++;
+    const intCharge = bal * R.r;
+    const prinPaid = Math.min(totalPmt - intCharge, bal);
+    if (prinPaid <= 0) break;
+    bal -= prinPaid;
+    totalInt += intCharge;
+  }
+
+  const monthsSaved = R.n - months;
+  const intSaved = R.totalInterest - totalInt;
+
+  document.getElementById('extraResults').innerHTML = `
+    <div class="extra-stat"><div class="lbl">Months Saved</div><div class="val" style="color:var(--good)">${monthsSaved}</div></div>
+    <div class="extra-stat"><div class="lbl">Interest Saved</div><div class="val" style="color:var(--good)">${currSymbol}${fmtShort(intSaved)}</div></div>
+    <div class="extra-stat"><div class="lbl">New Payment</div><div class="val">${currSymbol}${fmtShort(totalPmt)}</div></div>
+    <div class="extra-stat"><div class="lbl">Payoff In</div><div class="val">${months} mo</div></div>
+  `;
+}
+
+// Amortization
+function renderAmort() {
+  if (amortSchedule.length === 0) return;
+  let html = `<table class="amort-table"><thead><tr>
+    <th>Month</th><th>Principal</th><th>Interest</th><th>Balance</th>
+  </tr></thead><tbody>`;
+  amortSchedule.forEach(e => {
+    html += `<tr>
+      <td>${e.month}</td>
+      <td class="principal">${currSymbol}${fmt(e.principal)}</td>
+      <td class="interest">${currSymbol}${fmt(e.interest)}</td>
+      <td>${currSymbol}${fmtShort(e.balance)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('amortBody').innerHTML = html;
+}
+
+// Compare
+function renderCompare() {
+  if (savedVehicles.length === 0) {
+    document.getElementById('compareBody').innerHTML = '<p style="color:var(--muted);font-size:13px">Save at least one other vehicle first, then compare side-by-side.</p>';
+    return;
+  }
+  const current = currentResult;
+  let html = '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">Current: ' +
+    document.getElementById('vehicleName').value + ' (' + currSymbol + fmtShort(current.trueMonthlyCost) + '/mo)</div>';
+
+  savedVehicles.forEach((v, i) => {
+    const mDiff = v.result.trueMonthlyCost - current.trueMonthlyCost;
+    const fDiff = v.result.fiveYearCost - current.fiveYearCost;
+    const iDiff = v.result.totalInterest - current.totalInterest;
+    html += `<div class="card" style="margin-bottom:10px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px">${v.name}</div>
+      <div class="compare-row"><span class="metric">Monthly Cost</span>
+        <span class="diff ${mDiff <= 0 ? 'better' : 'worse'}">${mDiff <= 0 ? '&#9660;' : '&#9650;'} ${currSymbol}${fmtShort(Math.abs(mDiff))}/mo</span></div>
+      <div class="compare-row"><span class="metric">5-Year Cost</span>
+        <span class="diff ${fDiff <= 0 ? 'better' : 'worse'}">${fDiff <= 0 ? '&#9660;' : '&#9650;'} ${currSymbol}${fmtShort(Math.abs(fDiff))}</span></div>
+      <div class="compare-row"><span class="metric">Total Interest</span>
+        <span class="diff ${iDiff <= 0 ? 'better' : 'worse'}">${iDiff <= 0 ? '&#9660;' : '&#9650;'} ${currSymbol}${fmtShort(Math.abs(iDiff))}</span></div>
+    </div>`;
+  });
+  document.getElementById('compareBody').innerHTML = html;
+}
+
+// Share
+function renderShare() {
+  if (!currentResult) return;
+  const R = currentResult;
+  const name = document.getElementById('vehicleName').value;
+  document.getElementById('shareBody').innerHTML = `
+    <div class="share-card">
+      <h3>TrueCost Auto</h3>
+      <div class="share-name">${name}</div>
+      <div class="share-metrics">
+        <div class="share-metric"><div class="sh-label">True Cost/mo</div><div class="sh-value">${currSymbol}${fmtShort(R.trueMonthlyCost)}</div></div>
+        <div class="share-metric"><div class="sh-label">Payment/mo</div><div class="sh-value">${currSymbol}${fmtShort(R.monthlyPayment)}</div></div>
+        <div class="share-metric"><div class="sh-label">Total Interest</div><div class="sh-value">${currSymbol}${fmtShort(R.totalInterest)}</div></div>
+        <div class="share-metric"><div class="sh-label">5-Year Cost</div><div class="sh-value">${currSymbol}${fmtShort(R.fiveYearCost)}</div></div>
+      </div>
+    </div>
+    <div class="share-btns">
+      <button class="btn-share" onclick="alert('Share sheet would open on iOS')">Share</button>
+      <button class="btn-copy" onclick="copyShareText()">Copy Text</button>
+    </div>
+  `;
+}
+
+function copyShareText() {
+  if (!currentResult) return;
+  const R = currentResult;
+  const name = document.getElementById('vehicleName').value;
+  const text = `TrueCost Auto - ${name}\n\nTrue Monthly Cost: ${currSymbol}${fmtShort(R.trueMonthlyCost)}\nLoan Payment: ${currSymbol}${fmtShort(R.monthlyPayment)}/mo\nTotal Interest: ${currSymbol}${fmtShort(R.totalInterest)}\n5-Year Cost: ${currSymbol}${fmtShort(R.fiveYearCost)}\nSmart Score: ${R.rating} (${Math.round(R.score)}/100)`;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+}
+
+// Save Vehicle
+function saveVehicle() {
+  if (!currentResult) return;
+  const vehicle = {
+    id: Date.now(),
+    name: document.getElementById('vehicleName').value,
+    date: new Date().toLocaleDateString(),
+    result: { ...currentResult }
+  };
+  savedVehicles.push(vehicle);
+  renderSaved();
+  showToast('Vehicle saved!');
+}
+
+function renderSaved() {
+  if (savedVehicles.length === 0) {
+    document.getElementById('savedList').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">&#128663;</div>
+        <p>No vehicles saved yet.<br>Calculate a vehicle's true cost and tap Save to add it here.</p>
+      </div>`;
+    return;
+  }
+  let html = '';
+  savedVehicles.forEach((v, i) => {
+    html += `<div class="saved-card">
+      <div class="saved-card-header">
+        <h3>${v.name}</h3>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="date">Saved ${v.date}</span>
+          <button class="delete-btn" onclick="event.stopPropagation();deleteSaved(${i})">&#128465;</button>
+        </div>
+      </div>
+      <div class="saved-metrics">
+        <div class="saved-metric"><div class="sm-label">True Cost/mo</div><div class="sm-value">${currSymbol}${fmtShort(v.result.trueMonthlyCost)}</div></div>
+        <div class="saved-metric"><div class="sm-label">Payment/mo</div><div class="sm-value">${currSymbol}${fmtShort(v.result.monthlyPayment)}</div></div>
+        <div class="saved-metric"><div class="sm-label">5-Year Cost</div><div class="sm-value">${currSymbol}${fmtShort(v.result.fiveYearCost)}</div></div>
+        <div class="saved-metric"><div class="sm-label">Smart Score</div><div class="sm-value" style="color:${v.result.ratingColor}">${v.result.rating}</div></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('savedList').innerHTML = html;
+}
+
+function deleteSaved(i) {
+  savedVehicles.splice(i, 1);
+  renderSaved();
+  showToast('Vehicle deleted');
+}
+
+// Navigation
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'calc') {
+    if (currentResult) showScreen('results');
+    else showScreen('calc');
+  } else if (tab === 'saved') {
+    showScreen('saved');
+    renderSaved();
+  }
+}
+
+// Modals
+function openModal(name) {
+  if (name === 'amort') renderAmort();
+  if (name === 'compare') renderCompare();
+  if (name === 'share') renderShare();
+  document.getElementById('modal-' + name).classList.add('show');
+}
+
+function closeModals(e) {
+  if (e.target.classList.contains('modal-overlay')) {
+    e.target.classList.remove('show');
+  }
+}
+
+// Toast
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// Onboarding
+function nextOnboard() {
+  onboardPage++;
+  if (onboardPage >= 3) { finishOnboarding(); return; }
+  document.getElementById('onboard-title').textContent = onboardData[onboardPage].title;
+  document.getElementById('onboard-desc').textContent = onboardData[onboardPage].desc;
+  for (let i = 0; i < 3; i++) {
+    document.getElementById('dot' + i).classList.toggle('active', i === onboardPage);
+  }
+  if (onboardPage === 2) {
+    document.querySelector('.onboard-next').textContent = 'Get Started';
+    document.getElementById('onboard-skip').style.display = 'none';
+  }
+}
+
+function finishOnboarding() {
+  document.getElementById('onboarding').classList.add('hidden');
+}
+
+// Init
+calcFinanced();
+updateRunningBar();
+</script>
+</div>
+</body>
+</html>
