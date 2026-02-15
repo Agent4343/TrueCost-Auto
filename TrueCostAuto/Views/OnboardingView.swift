@@ -34,14 +34,7 @@ struct OnboardingView: View {
                 Spacer()
 
                 // Logo
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(TCTheme.accentGradient)
-                    .frame(width: 80, height: 80)
-                    .overlay(
-                        Text("TC")
-                            .font(.system(size: 28, weight: .black, design: .rounded))
-                            .foregroundStyle(.white)
-                    )
+                AppLogo(size: 80)
                     .shadow(color: TCTheme.accent.opacity(0.3), radius: 20, y: 10)
                     .scaleEffect(animateIcon ? 1.0 : 0.8)
                     .opacity(animateIcon ? 1 : 0)

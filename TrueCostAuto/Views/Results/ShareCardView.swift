@@ -83,14 +83,7 @@ struct ShareCardView: View {
         VStack(spacing: 16) {
             // Header
             HStack {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(TCTheme.accentGradient)
-                    .frame(width: 28, height: 28)
-                    .overlay(
-                        Text("TC")
-                            .font(.system(size: 10, weight: .black, design: .rounded))
-                            .foregroundStyle(.white)
-                    )
+                AppLogo(size: 28)
                 Text("TrueCost Auto")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(TCTheme.text)

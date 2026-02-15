@@ -79,14 +79,7 @@ struct ContentView: View {
     private var headerBar: some View {
         HStack(spacing: 12) {
             // Logo
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(TCTheme.accentGradient)
-                .frame(width: 42, height: 42)
-                .overlay(
-                    Text("TC")
-                        .font(.system(size: 16, weight: .black, design: .rounded))
-                        .foregroundStyle(.white)
-                )
+            AppLogo(size: 42)
                 .shadow(color: TCTheme.accent.opacity(0.18), radius: 10, y: 5)
 
             VStack(alignment: .leading, spacing: 2) {
