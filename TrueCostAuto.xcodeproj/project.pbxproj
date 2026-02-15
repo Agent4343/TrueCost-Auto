@@ -30,6 +30,7 @@
 		A10000021 /* SmartScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000021; };
 		A10000022 /* ExtraPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000022; };
 		A10000023 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000023; };
+		A10000024 /* AppLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000024; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +58,7 @@
 		A20000021 /* SmartScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartScoreView.swift; sourceTree = "<group>"; };
 		A20000022 /* ExtraPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraPaymentView.swift; sourceTree = "<group>"; };
 		A20000023 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		A20000024 /* AppLogo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				A20000017 /* CurrencyField.swift */,
+				A20000024 /* AppLogo.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -271,6 +274,7 @@
 				A10000021 /* SmartScoreView.swift in Sources */,
 				A10000022 /* ExtraPaymentView.swift in Sources */,
 				A10000023 /* OnboardingView.swift in Sources */,
+				A10000024 /* AppLogo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
