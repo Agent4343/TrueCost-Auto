@@ -8,6 +8,7 @@ struct ResultsView: View {
     @State private var showCompare = false
     @State private var showAmortization = false
     @State private var animateIn = false
+    @State private var tileAnimations = [false, false, false, false]
 
     var body: some View {
         if let result = viewModel.result {
@@ -17,32 +18,42 @@ struct ResultsView: View {
                     .opacity(animateIn ? 1 : 0)
                     .offset(y: animateIn ? 0 : 20)
 
-                // Breakdown tiles
-                breakdownGrid(result)
-                    .opacity(animateIn ? 1 : 0)
-                    .offset(y: animateIn ? 0 : 30)
+                // Affordability insight
+                affordabilityInsight(result)
+                    .opacity(tileAnimations[0] ? 1 : 0)
+                    .offset(y: tileAnimations[0] ? 0 : 15)
 
-                // Cost pie chart approximation
+                // Breakdown tiles with stagger
+                breakdownGrid(result)
+
+                // Cost breakdown
                 costBreakdownSection(result)
-                    .opacity(animateIn ? 1 : 0)
-                    .offset(y: animateIn ? 0 : 35)
+                    .opacity(tileAnimations[2] ? 1 : 0)
+                    .offset(y: tileAnimations[2] ? 0 : 20)
 
                 // Action rows
                 actionsSection
-                    .opacity(animateIn ? 1 : 0)
-                    .offset(y: animateIn ? 0 : 40)
+                    .opacity(tileAnimations[3] ? 1 : 0)
+                    .offset(y: tileAnimations[3] ? 0 : 20)
 
                 // Save button
                 saveButton
-                    .opacity(animateIn ? 1 : 0)
+                    .opacity(tileAnimations[3] ? 1 : 0)
             }
             .onAppear {
                 withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
                     animateIn = true
                 }
+                // Stagger tile animations
+                for i in 0..<4 {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.2 + Double(i) * 0.08)) {
+                        tileAnimations[i] = true
+                    }
+                }
             }
             .onDisappear {
                 animateIn = false
+                tileAnimations = [false, false, false, false]
             }
             .sheet(isPresented: $showShareSheet) {
                 ShareCardView(vehicle: viewModel.vehicle, result: result)
@@ -59,6 +70,64 @@ struct ResultsView: View {
         }
     }
 
+    // MARK: - Affordability Insight Card
+    private func affordabilityInsight(_ result: CalculationResult) -> some View {
+        let score = result.smartScore
+        let icon: String
+        let message: String
+        let tipColor: Color
+
+        switch score {
+        case .excellent:
+            icon = "hand.thumbsup.fill"
+            message = "Great choice! This vehicle is well within your budget. You'll have room for savings and unexpected expenses."
+            tipColor = TCTheme.good
+        case .reasonable:
+            icon = "checkmark.shield.fill"
+            message = "This is a manageable purchase. Consider a shorter loan term to save on interest."
+            tipColor = TCTheme.good
+        case .stretch:
+            icon = "exclamationmark.triangle.fill"
+            message = "This vehicle will stretch your budget. Adding \(TCTheme.formatCurrency(200)) extra per month could save you \(TCTheme.formatCurrency(result.interestSavedWithExtra)) in interest."
+            tipColor = TCTheme.warn
+        case .risky:
+            icon = "exclamationmark.octagon.fill"
+            message = "This purchase could cause financial stress. Consider increasing your down payment or choosing a less expensive vehicle."
+            tipColor = TCTheme.bad
+        case .overextended:
+            icon = "xmark.octagon.fill"
+            message = "This vehicle is likely beyond your current budget. The monthly cost is over 30% of your income."
+            tipColor = TCTheme.bad
+        }
+
+        return HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundStyle(tipColor)
+                .frame(width: 24)
+                .padding(.top, 2)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Affordability Insight")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(tipColor)
+                Text(message)
+                    .font(.system(size: 12))
+                    .foregroundStyle(TCTheme.muted)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(14)
+        .background(tipColor.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(tipColor.opacity(0.15), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Breakdown Tiles
     private func breakdownGrid(_ result: CalculationResult) -> some View {
         LazyVGrid(columns: [
             GridItem(.flexible(), spacing: 12),
@@ -71,6 +140,9 @@ struct ResultsView: View {
                 icon: "creditcard.fill",
                 color: TCTheme.accent
             )
+            .opacity(tileAnimations[1] ? 1 : 0)
+            .offset(y: tileAnimations[1] ? 0 : 20)
+
             BreakdownTile(
                 title: "Total Interest",
                 value: TCTheme.formatCurrency(result.totalInterest),
@@ -78,6 +150,9 @@ struct ResultsView: View {
                 icon: "percent",
                 color: TCTheme.warn
             )
+            .opacity(tileAnimations[1] ? 1 : 0)
+            .offset(y: tileAnimations[1] ? 0 : 20)
+
             BreakdownTile(
                 title: "Total Paid",
                 value: TCTheme.formatCurrency(result.totalPaid),
@@ -85,6 +160,9 @@ struct ResultsView: View {
                 icon: "banknote.fill",
                 color: TCTheme.accent2
             )
+            .opacity(tileAnimations[1] ? 1 : 0)
+            .offset(y: tileAnimations[1] ? 0 : 25)
+
             BreakdownTile(
                 title: "5-Year Cost",
                 value: TCTheme.formatCurrency(result.fiveYearCost),
@@ -92,9 +170,12 @@ struct ResultsView: View {
                 icon: "calendar.badge.clock",
                 color: TCTheme.good
             )
+            .opacity(tileAnimations[1] ? 1 : 0)
+            .offset(y: tileAnimations[1] ? 0 : 25)
         }
     }
 
+    // MARK: - Monthly Breakdown
     private func costBreakdownSection(_ result: CalculationResult) -> some View {
         VStack(spacing: 0) {
             HStack {
@@ -117,10 +198,10 @@ struct ResultsView: View {
 
             VStack(spacing: 10) {
                 costRow("Loan Payment", result.monthlyPayment, result.trueMonthlyCost, TCTheme.accent)
-                costRow("Insurance", viewModel.vehicle.insurance, result.trueMonthlyCost, TCTheme.accent2)
-                costRow("Fuel / Charging", viewModel.vehicle.fuel, result.trueMonthlyCost, Color.orange)
-                costRow("Maintenance", viewModel.vehicle.maintenance, result.trueMonthlyCost, TCTheme.good)
-                costRow("Tires / Other", viewModel.vehicle.tiresAndOther, result.trueMonthlyCost, TCTheme.warn)
+                costRow("Insurance", viewModel.vehicle.insurance, result.trueMonthlyCost, TCTheme.accent)
+                costRow("Fuel / Charging", viewModel.vehicle.fuel, result.trueMonthlyCost, TCTheme.good)
+                costRow("Maintenance", viewModel.vehicle.maintenance, result.trueMonthlyCost, TCTheme.warn)
+                costRow("Tires / Other", viewModel.vehicle.tiresAndOther, result.trueMonthlyCost, TCTheme.accent2)
             }
             .padding(14)
         }
@@ -160,13 +241,14 @@ struct ResultsView: View {
         }
     }
 
+    // MARK: - Action Rows
     private var actionsSection: some View {
         VStack(spacing: 10) {
             actionRow(
                 title: "Compare vs another car",
                 subtitle: "Pick 2-3 vehicles side-by-side",
                 icon: "arrow.left.arrow.right",
-                isPro: false
+                color: TCTheme.accent
             ) {
                 showCompare = true
             }
@@ -175,7 +257,7 @@ struct ResultsView: View {
                 title: "Share summary",
                 subtitle: "Export a clean card to send a friend",
                 icon: "square.and.arrow.up",
-                isPro: false
+                color: TCTheme.good
             ) {
                 showShareSheet = true
             }
@@ -184,7 +266,7 @@ struct ResultsView: View {
                 title: "Extra payment scenario",
                 subtitle: "See months saved + interest saved",
                 icon: "arrow.up.right.circle",
-                isPro: false
+                color: TCTheme.warn
             ) {
                 showExtraPayment = true
             }
@@ -193,20 +275,22 @@ struct ResultsView: View {
                 title: "Amortization schedule",
                 subtitle: "Month-by-month payment breakdown",
                 icon: "tablecells",
-                isPro: false
+                color: TCTheme.accent2
             ) {
                 showAmortization = true
             }
         }
     }
 
-    private func actionRow(title: String, subtitle: String, icon: String, isPro: Bool, action: @escaping () -> Void) -> some View {
+    private func actionRow(title: String, subtitle: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.system(size: 16))
-                    .foregroundStyle(TCTheme.accent)
-                    .frame(width: 32)
+                    .foregroundStyle(color)
+                    .frame(width: 36, height: 36)
+                    .background(color.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
@@ -234,75 +318,178 @@ struct ResultsView: View {
         .buttonStyle(.plain)
     }
 
+    // MARK: - Save Button
     private var saveButton: some View {
         Button {
-            store.save(viewModel.vehicle)
-            let notification = UINotificationFeedbackGenerator()
-            notification.notificationOccurred(.success)
+            viewModel.saveVehicle(to: store)
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: "bookmark.fill")
                     .font(.system(size: 14))
                 Text("Save Vehicle")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 15, weight: .bold))
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(TCTheme.panelAlt)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(TCTheme.accent.opacity(0.4), lineWidth: 1)
-            )
+            .padding(.vertical, 16)
+            .background(TCTheme.accentGradient)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: TCTheme.accent.opacity(0.2), radius: 12, y: 6)
         }
         .buttonStyle(.plain)
     }
 
+    // MARK: - Amortization Sheet
     private func amortizationSheet(_ result: CalculationResult) -> some View {
         NavigationStack {
-            List {
-                Section {
-                    ForEach(result.amortizationSchedule) { entry in
-                        HStack {
-                            Text("Mo \(entry.month)")
-                                .font(.system(size: 12, weight: .medium, design: .monospaced))
-                                .foregroundStyle(TCTheme.muted)
-                                .frame(width: 50, alignment: .leading)
+            ZStack {
+                TCTheme.bg.ignoresSafeArea()
 
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Principal: \(TCTheme.formatCurrency(entry.principal))")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(TCTheme.good)
-                                Text("Interest: \(TCTheme.formatCurrency(entry.interest))")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(TCTheme.warn)
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // Summary header
+                        amortizationSummary(result)
+
+                        // Table
+                        LazyVStack(spacing: 0) {
+                            // Column headers
+                            HStack {
+                                Text("Month")
+                                    .frame(width: 44, alignment: .leading)
+                                Text("Principal")
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                Text("Interest")
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                Text("Balance")
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
                             }
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(TCTheme.muted)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                            .background(TCTheme.panelAlt.opacity(0.55))
 
-                            Spacer()
+                            ForEach(result.amortizationSchedule) { entry in
+                                HStack {
+                                    Text("\(entry.month)")
+                                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                        .foregroundStyle(TCTheme.muted)
+                                        .frame(width: 44, alignment: .leading)
 
-                            Text(TCTheme.formatCurrency(entry.remainingBalance))
-                                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                .foregroundStyle(TCTheme.text)
+                                    Text(TCTheme.formatCurrency(entry.principal))
+                                        .font(.system(size: 12, design: .rounded))
+                                        .foregroundStyle(TCTheme.good)
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+
+                                    Text(TCTheme.formatCurrency(entry.interest))
+                                        .font(.system(size: 12, design: .rounded))
+                                        .foregroundStyle(TCTheme.warn)
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+
+                                    Text(TCTheme.formatCurrency(entry.remainingBalance))
+                                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                                        .foregroundStyle(TCTheme.text)
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(
+                                    entry.month % 2 == 0
+                                        ? TCTheme.panelAlt.opacity(0.3)
+                                        : Color.clear
+                                )
+                            }
                         }
-                        .listRowBackground(TCTheme.panelAlt)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(TCTheme.line, lineWidth: 1)
+                        )
                     }
-                } header: {
-                    Text("Month-by-month breakdown")
+                    .padding(16)
                 }
             }
-            .scrollContentBackground(.hidden)
-            .background(TCTheme.bg)
             .navigationTitle("Amortization")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { showAmortization = false }
+                        .tint(TCTheme.accent)
                 }
             }
         }
         .presentationDetents([.large])
         .preferredColorScheme(.dark)
+    }
+
+    private func amortizationSummary(_ result: CalculationResult) -> some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 0) {
+                VStack(spacing: 4) {
+                    Text("Principal")
+                        .font(.system(size: 10))
+                        .foregroundStyle(TCTheme.muted)
+                    Text(TCTheme.formatCurrency(result.totalPaid - result.totalInterest))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(TCTheme.good)
+                }
+                .frame(maxWidth: .infinity)
+
+                VStack(spacing: 4) {
+                    Text("Interest")
+                        .font(.system(size: 10))
+                        .foregroundStyle(TCTheme.muted)
+                    Text(TCTheme.formatCurrency(result.totalInterest))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(TCTheme.warn)
+                }
+                .frame(maxWidth: .infinity)
+
+                VStack(spacing: 4) {
+                    Text("Total")
+                        .font(.system(size: 10))
+                        .foregroundStyle(TCTheme.muted)
+                    Text(TCTheme.formatCurrency(result.totalPaid))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(TCTheme.text)
+                }
+                .frame(maxWidth: .infinity)
+            }
+
+            // Interest ratio bar
+            GeometryReader { geo in
+                let principalPct = result.totalPaid > 0
+                    ? (result.totalPaid - result.totalInterest) / result.totalPaid
+                    : 1.0
+                HStack(spacing: 2) {
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill(TCTheme.good)
+                        .frame(width: geo.size.width * principalPct)
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill(TCTheme.warn)
+                }
+            }
+            .frame(height: 8)
+            .clipShape(Capsule())
+
+            HStack(spacing: 16) {
+                HStack(spacing: 4) {
+                    Circle().fill(TCTheme.good).frame(width: 6, height: 6)
+                    Text("Principal")
+                        .font(.system(size: 10))
+                        .foregroundStyle(TCTheme.muted)
+                }
+                HStack(spacing: 4) {
+                    Circle().fill(TCTheme.warn).frame(width: 6, height: 6)
+                    Text("Interest")
+                        .font(.system(size: 10))
+                        .foregroundStyle(TCTheme.muted)
+                }
+                Spacer()
+            }
+        }
+        .padding(14)
+        .tcCard()
     }
 }
 

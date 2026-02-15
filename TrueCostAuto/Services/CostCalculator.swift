@@ -12,7 +12,7 @@ struct CostCalculator {
         if monthlyRate > 0 {
             monthlyPayment = principal * (monthlyRate * pow(1 + monthlyRate, n)) / (pow(1 + monthlyRate, n) - 1)
         } else {
-            monthlyPayment = principal / n
+            monthlyPayment = n > 0 ? principal / n : 0
         }
 
         let biWeeklyPayment = monthlyPayment * 12.0 / 26.0

@@ -4,7 +4,6 @@ struct ContentView: View {
     @Environment(VehicleStore.self) private var store
     @Environment(VehicleViewModel.self) private var viewModel
     @State private var showOnboarding = false
-    @State private var showSavedVehicles = false
     @State private var selectedTab: Tab = .calculator
 
     enum Tab: String, CaseIterable {
@@ -32,6 +31,16 @@ struct ContentView: View {
                         }
                 }
                 .tint(TCTheme.accent)
+
+                // Save toast overlay
+                if viewModel.showSaveToast {
+                    VStack {
+                        saveToast
+                        Spacer()
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(100)
+                }
             }
         }
         .sheet(isPresented: $showOnboarding) {
@@ -91,6 +100,9 @@ struct ContentView: View {
 
             Spacer()
 
+            // Currency toggle
+            currencyToggle
+
             if viewModel.showResults {
                 Button {
                     viewModel.showResults = false
@@ -119,6 +131,57 @@ struct ContentView: View {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(TCTheme.line, lineWidth: 1)
         )
+    }
+
+    private var currencyToggle: some View {
+        HStack(spacing: 0) {
+            ForEach(CurrencyRegion.allCases, id: \.self) { region in
+                Button {
+                    withAnimation(.spring(response: 0.3)) {
+                        viewModel.setCurrency(region)
+                    }
+                } label: {
+                    Text(region.symbol)
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(viewModel.currency == region ? .white : TCTheme.muted)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            viewModel.currency == region
+                                ? AnyShapeStyle(TCTheme.accentGradient)
+                                : AnyShapeStyle(Color.clear)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(3)
+        .background(TCTheme.panelAlt.opacity(0.75))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(TCTheme.line, lineWidth: 1)
+        )
+    }
+
+    private var saveToast: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 18))
+                .foregroundStyle(.white)
+            Text("Vehicle Saved!")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(.white)
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 14)
+        .background(
+            Capsule()
+                .fill(TCTheme.good)
+                .shadow(color: TCTheme.good.opacity(0.3), radius: 12, y: 4)
+        )
+        .padding(.top, 8)
     }
 
     private var backgroundGradient: some View {

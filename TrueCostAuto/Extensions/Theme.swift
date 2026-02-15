@@ -41,21 +41,22 @@ enum TCTheme {
         }
     }
 
-    static func formatCurrency(_ value: Double) -> String {
+    // Currency-aware formatting
+    static func formatCurrency(_ value: Double, symbol: String = "$") -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencySymbol = "$"
+        formatter.currencySymbol = symbol
         formatter.maximumFractionDigits = 0
-        return formatter.string(from: NSNumber(value: value)) ?? "$0"
+        return formatter.string(from: NSNumber(value: value)) ?? "\(symbol)0"
     }
 
-    static func formatCurrencyWithCents(_ value: Double) -> String {
+    static func formatCurrencyWithCents(_ value: Double, symbol: String = "$") -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.currencySymbol = "$"
+        formatter.currencySymbol = symbol
         formatter.maximumFractionDigits = 2
         formatter.minimumFractionDigits = 2
-        return formatter.string(from: NSNumber(value: value)) ?? "$0.00"
+        return formatter.string(from: NSNumber(value: value)) ?? "\(symbol)0.00"
     }
 
     static func formatPercent(_ value: Double) -> String {

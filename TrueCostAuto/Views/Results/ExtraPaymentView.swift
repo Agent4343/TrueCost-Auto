@@ -116,7 +116,7 @@ struct ExtraPaymentView: View {
 
     private func resultsSection(base: CalculationResult, extra: CalculationResult) -> some View {
         VStack(spacing: 12) {
-            // Months saved
+            // Months saved + Interest saved
             HStack(spacing: 12) {
                 savingsCard(
                     icon: "calendar.badge.minus",
@@ -133,6 +133,9 @@ struct ExtraPaymentView: View {
                     color: TCTheme.good
                 )
             }
+
+            // Payoff date
+            payoffDateCard(base: base, extra: extra)
 
             // New monthly payment
             VStack(alignment: .leading, spacing: 8) {
@@ -169,6 +172,58 @@ struct ExtraPaymentView: View {
             .padding(14)
             .tcCard()
         }
+    }
+
+    private func payoffDateCard(base: CalculationResult, extra: CalculationResult) -> some View {
+        let originalDate = Calendar.current.date(byAdding: .month, value: viewModel.vehicle.loanTermMonths, to: Date()) ?? Date()
+        let newDate = Calendar.current.date(byAdding: .month, value: extra.payoffMonthsWithExtra, to: Date()) ?? Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM yyyy"
+
+        return HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Original Payoff")
+                    .font(.system(size: 10))
+                    .foregroundStyle(TCTheme.muted)
+                Text(dateFormatter.string(from: originalDate))
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(TCTheme.muted)
+                    .strikethrough(color: TCTheme.bad.opacity(0.5))
+            }
+
+            Image(systemName: "arrow.right")
+                .font(.system(size: 14))
+                .foregroundStyle(TCTheme.good)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("New Payoff")
+                    .font(.system(size: 10))
+                    .foregroundStyle(TCTheme.muted)
+                Text(dateFormatter.string(from: newDate))
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(TCTheme.good)
+            }
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("Earlier by")
+                    .font(.system(size: 10))
+                    .foregroundStyle(TCTheme.muted)
+                let years = extra.monthsSavedWithExtra / 12
+                let months = extra.monthsSavedWithExtra % 12
+                Text(years > 0 ? "\(years)y \(months)m" : "\(months) months")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(TCTheme.good)
+            }
+        }
+        .padding(14)
+        .background(TCTheme.good.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(TCTheme.good.opacity(0.15), lineWidth: 1)
+        )
     }
 
     private func savingsCard(icon: String, title: String, value: String, subtitle: String, color: Color) -> some View {

@@ -3,22 +3,26 @@ import SwiftUI
 struct OnboardingView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var currentPage = 0
+    @State private var animateIcon = false
 
-    private let pages: [(icon: String, title: String, body: String)] = [
+    private let pages: [(icon: String, title: String, body: String, color: Color)] = [
         (
             "dollarsign.circle.fill",
             "See the Real Cost",
-            "Your car payment is just the start. TrueCost Auto shows you the full monthly picture — payment, insurance, fuel, maintenance, and more."
+            "Your car payment is just the start. TrueCost Auto shows you the full monthly picture — payment, insurance, fuel, maintenance, and more.",
+            TCTheme.accent
         ),
         (
             "gauge.with.dots.needle.67percent",
             "Smart Score",
-            "Instantly see if a vehicle fits your budget. Our Smart Score analyzes your income ratio, interest burden, and loan term to give you a clear answer."
+            "Instantly see if a vehicle fits your budget. Our Smart Score analyzes your income ratio, interest burden, and loan term to give you a clear answer.",
+            TCTheme.good
         ),
         (
             "arrow.left.arrow.right",
             "Compare & Decide",
-            "Save multiple vehicles and compare them side-by-side. See which one truly costs less over 5 years — not just which has the lowest sticker price."
+            "Save multiple vehicles and compare them side-by-side. See which one truly costs less over 5 years — not just which has the lowest sticker price.",
+            TCTheme.accent2
         ),
     ]
 
@@ -39,6 +43,8 @@ struct OnboardingView: View {
                             .foregroundStyle(.white)
                     )
                     .shadow(color: TCTheme.accent.opacity(0.3), radius: 20, y: 10)
+                    .scaleEffect(animateIcon ? 1.0 : 0.8)
+                    .opacity(animateIcon ? 1 : 0)
                     .padding(.bottom, 32)
 
                 // Page content
@@ -91,17 +97,23 @@ struct OnboardingView: View {
             }
         }
         .interactiveDismissDisabled(false)
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2)) {
+                animateIcon = true
+            }
+        }
     }
 
-    private func pageView(_ page: (icon: String, title: String, body: String)) -> some View {
+    private func pageView(_ page: (icon: String, title: String, body: String, color: Color)) -> some View {
         VStack(spacing: 16) {
             Image(systemName: page.icon)
-                .font(.system(size: 40))
-                .foregroundStyle(TCTheme.accent)
+                .font(.system(size: 44))
+                .foregroundStyle(page.color)
                 .padding(.bottom, 4)
+                .shadow(color: page.color.opacity(0.3), radius: 8, y: 4)
 
             Text(page.title)
-                .font(.system(size: 22, weight: .bold))
+                .font(.system(size: 24, weight: .bold))
                 .foregroundStyle(TCTheme.text)
 
             Text(page.body)

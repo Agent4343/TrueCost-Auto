@@ -67,9 +67,9 @@ struct RunningCostsSection: View {
 
         let items: [(String, Double, Color)] = [
             ("Insurance", viewModel.vehicle.insurance, TCTheme.accent),
-            ("Fuel", viewModel.vehicle.fuel, TCTheme.accent2),
-            ("Maint.", viewModel.vehicle.maintenance, TCTheme.good),
-            ("Other", viewModel.vehicle.tiresAndOther, TCTheme.warn),
+            ("Fuel", viewModel.vehicle.fuel, TCTheme.good),
+            ("Maint.", viewModel.vehicle.maintenance, TCTheme.warn),
+            ("Other", viewModel.vehicle.tiresAndOther, TCTheme.accent2),
         ]
 
         return AnyView(
