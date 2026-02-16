@@ -128,7 +128,7 @@ final class VehicleViewModel {
         guard let r = result else { return "" }
         let sym = currencySymbol
         return """
-        TrueCost Auto — \(vehicle.name)
+        ShiftSync — \(vehicle.name)
         ================================
         True Monthly Cost: \(TCTheme.formatCurrency(r.trueMonthlyCost, symbol: sym))
         Daily Cost: \(TCTheme.formatCurrencyWithCents(r.dailyCost, symbol: sym))
@@ -140,7 +140,7 @@ final class VehicleViewModel {
         5-Year Cost: \(TCTheme.formatCurrency(r.fiveYearCost, symbol: sym))
         Smart Score: \(r.smartScore.rawValue) (\(Int(r.smartScoreValue))/100)\(r.incomePercentage.map { " — \(String(format: "%.1f", $0))% of income" } ?? "")
         ================================
-        Calculated with TrueCost Auto
+        Calculated with ShiftSync
         """
     }
 }

@@ -9,7 +9,7 @@ struct OnboardingView: View {
         (
             "dollarsign.circle.fill",
             "See the Real Cost",
-            "Your car payment is just the start. TrueCost Auto shows you the full monthly picture — payment, insurance, fuel, maintenance, and depreciation.",
+            "Your car payment is just the start. ShiftSync shows you the full monthly picture — payment, insurance, fuel, maintenance, and depreciation.",
             TCTheme.accent
         ),
         (

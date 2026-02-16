@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TrueCost Auto - Interactive Preview</title>
+<title>ShiftSync - Interactive Preview</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -287,7 +287,7 @@ z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:no
 
 <!-- Header -->
 <div class="header">
-<h1>TrueCost Auto</h1>
+<h1>ShiftSync</h1>
 <div class="currency-toggle">
 <button class="active" id="btn-cad" onclick="setCurrency('CAD')">CA$</button>
 <button id="btn-usd" onclick="setCurrency('USD')">$</button>
@@ -836,7 +836,7 @@ function renderShare() {
   const name = document.getElementById('vehicleName').value;
   document.getElementById('shareBody').innerHTML = `
     <div class="share-card">
-      <h3>TrueCost Auto</h3>
+      <h3>ShiftSync</h3>
       <div class="share-name">${name}</div>
       <div class="share-metrics">
         <div class="share-metric"><div class="sh-label">True Cost/mo</div><div class="sh-value">${currSymbol}${fmtShort(R.trueMonthlyCost)}</div></div>
@@ -856,7 +856,7 @@ function copyShareText() {
   if (!currentResult) return;
   const R = currentResult;
   const name = document.getElementById('vehicleName').value;
-  const text = `TrueCost Auto - ${name}\n\nTrue Monthly Cost: ${currSymbol}${fmtShort(R.trueMonthlyCost)}\nLoan Payment: ${currSymbol}${fmtShort(R.monthlyPayment)}/mo\nTotal Interest: ${currSymbol}${fmtShort(R.totalInterest)}\n5-Year Cost: ${currSymbol}${fmtShort(R.fiveYearCost)}\nSmart Score: ${R.rating} (${Math.round(R.score)}/100)`;
+  const text = `ShiftSync - ${name}\n\nTrue Monthly Cost: ${currSymbol}${fmtShort(R.trueMonthlyCost)}\nLoan Payment: ${currSymbol}${fmtShort(R.monthlyPayment)}/mo\nTotal Interest: ${currSymbol}${fmtShort(R.totalInterest)}\n5-Year Cost: ${currSymbol}${fmtShort(R.fiveYearCost)}\nSmart Score: ${R.rating} (${Math.round(R.score)}/100)`;
   navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
 }
 
