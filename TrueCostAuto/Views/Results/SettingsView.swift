@@ -145,6 +145,24 @@ struct SettingsView: View {
                     infoRow("Depreciation", "Compound annual rate averaged over 5 years")
                     infoRow("Fuel Estimator", "Region-aware calculation using distance, efficiency, and fuel price")
                 }
+
+                Divider().overlay(TCTheme.line)
+
+                // Financial disclaimer
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 10))
+                            .foregroundStyle(TCTheme.warn)
+                        Text("Disclaimer")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(TCTheme.muted)
+                    }
+                    Text("TrueCost Auto provides estimates for informational purposes only and does not constitute financial advice. Actual costs may vary based on lender terms, market conditions, and other factors. Always verify figures with your lender or financial advisor before making purchase decisions.")
+                        .font(.system(size: 10))
+                        .foregroundStyle(TCTheme.muted.opacity(0.7))
+                        .lineSpacing(2)
+                }
             }
             .padding(14)
         }
