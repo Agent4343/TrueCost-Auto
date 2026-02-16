@@ -129,7 +129,7 @@ struct ContentView: View {
             AppLogo(size: 36)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("ShiftSync")
+                Text("TrueCost Auto")
                     .font(.system(size: 17, weight: .bold))
                     .foregroundStyle(TCTheme.text)
                 Text("See the real cost")

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ShiftSync - Interactive Preview</title>
+<title>TrueCost Auto - Interactive Preview</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -238,8 +238,13 @@ align-items:center;justify-content:center;text-align:center;padding:40px 30px}
 .onboarding.hidden{display:none}
 .onboard-logo{width:80px;height:80px;border-radius:24px;
 background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;
-justify-content:center;font-size:32px;font-weight:900;color:#fff;margin-bottom:40px;
-box-shadow:0 8px 32px rgba(106,165,255,0.3)}
+justify-content:center;margin-bottom:40px;
+box-shadow:0 8px 32px rgba(106,165,255,0.3);overflow:hidden}
+.onboard-logo svg{width:52px;height:52px}
+.header-logo{width:32px;height:32px;border-radius:9px;
+background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;
+justify-content:center;flex-shrink:0;margin-right:8px}
+.header-logo svg{width:20px;height:20px}
 .onboard-title{font-size:24px;font-weight:800;margin-bottom:12px}
 .onboard-desc{font-size:14px;color:var(--muted);line-height:1.6;max-width:300px}
 .onboard-dots{display:flex;gap:8px;margin:40px 0}
@@ -271,7 +276,7 @@ z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:no
 
 <!-- Onboarding -->
 <div class="onboarding" id="onboarding">
-<div class="onboard-logo">TC</div>
+<div class="onboard-logo" id="onboard-logo-container"></div>
 <div class="onboard-title" id="onboard-title">See the Real Cost</div>
 <div class="onboard-desc" id="onboard-desc">Go beyond the sticker price. See your true monthly cost including loan payments, insurance, fuel, and maintenance.</div>
 <div class="onboard-dots">
@@ -287,7 +292,10 @@ z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:no
 
 <!-- Header -->
 <div class="header">
-<h1>ShiftSync</h1>
+<div style="display:flex;align-items:center">
+<div class="header-logo" id="header-logo-container"></div>
+<h1>TrueCost Auto</h1>
+</div>
 <div class="currency-toggle">
 <button class="active" id="btn-cad" onclick="setCurrency('CAD')">CA$</button>
 <button id="btn-usd" onclick="setCurrency('USD')">$</button>
@@ -836,7 +844,7 @@ function renderShare() {
   const name = document.getElementById('vehicleName').value;
   document.getElementById('shareBody').innerHTML = `
     <div class="share-card">
-      <h3>ShiftSync</h3>
+      <h3>TrueCost Auto</h3>
       <div class="share-name">${name}</div>
       <div class="share-metrics">
         <div class="share-metric"><div class="sh-label">True Cost/mo</div><div class="sh-value">${currSymbol}${fmtShort(R.trueMonthlyCost)}</div></div>
@@ -856,7 +864,7 @@ function copyShareText() {
   if (!currentResult) return;
   const R = currentResult;
   const name = document.getElementById('vehicleName').value;
-  const text = `ShiftSync - ${name}\n\nTrue Monthly Cost: ${currSymbol}${fmtShort(R.trueMonthlyCost)}\nLoan Payment: ${currSymbol}${fmtShort(R.monthlyPayment)}/mo\nTotal Interest: ${currSymbol}${fmtShort(R.totalInterest)}\n5-Year Cost: ${currSymbol}${fmtShort(R.fiveYearCost)}\nSmart Score: ${R.rating} (${Math.round(R.score)}/100)`;
+  const text = `TrueCost Auto - ${name}\n\nTrue Monthly Cost: ${currSymbol}${fmtShort(R.trueMonthlyCost)}\nLoan Payment: ${currSymbol}${fmtShort(R.monthlyPayment)}/mo\nTotal Interest: ${currSymbol}${fmtShort(R.totalInterest)}\n5-Year Cost: ${currSymbol}${fmtShort(R.fiveYearCost)}\nSmart Score: ${R.rating} (${Math.round(R.score)}/100)`;
   navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
 }
 

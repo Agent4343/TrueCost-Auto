@@ -3,23 +3,19 @@ import SwiftUI
 struct AppLogo: View {
     let size: CGFloat
 
-    private var gearRadius: CGFloat { size * 0.42 }
-    private var toothCount: Int { 8 }
-    private var arrowSize: CGFloat { size * 0.22 }
-
     var body: some View {
         ZStack {
             // Gradient background
             RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)
                 .fill(TCTheme.accentGradient)
 
-            // Top-left shine for depth
+            // Shine overlay
             RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)
                 .fill(
                     LinearGradient(
                         stops: [
-                            .init(color: .white.opacity(0.20), location: 0),
-                            .init(color: .white.opacity(0.05), location: 0.35),
+                            .init(color: .white.opacity(0.22), location: 0),
+                            .init(color: .white.opacity(0.06), location: 0.35),
                             .init(color: .clear, location: 0.55)
                         ],
                         startPoint: .topLeading,
@@ -27,176 +23,132 @@ struct AppLogo: View {
                     )
                 )
 
-            // Gear + Sync icon
-            gearSyncIcon
-                .frame(width: size * 0.7, height: size * 0.7)
+            // Gear + sync mark
+            ShiftSyncMark()
+                .fill(.white.opacity(0.95))
+                .frame(width: size * 0.62, height: size * 0.62)
         }
         .frame(width: size, height: size)
     }
-
-    private var gearSyncIcon: some View {
-        ZStack {
-            // Outer gear ring with teeth
-            GearShape(toothCount: toothCount, toothDepth: 0.15)
-                .fill(.white.opacity(0.93))
-
-            // Inner circle cutout (makes it a ring)
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            TCTheme.accent.opacity(0.8),
-                            TCTheme.accent2.opacity(0.9)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: size * 0.38, height: size * 0.38)
-
-            // Sync arrows (two curved arrows forming a cycle)
-            syncArrows
-        }
-    }
-
-    private var syncArrows: some View {
-        let arrowScale = size * 0.16
-
-        return ZStack {
-            // Top-right arrow (clockwise curve)
-            SyncArrowShape(clockwise: true)
-                .stroke(.white.opacity(0.95), style: StrokeStyle(
-                    lineWidth: max(1.5, size * 0.04),
-                    lineCap: .round
-                ))
-                .frame(width: arrowScale, height: arrowScale)
-                .offset(x: arrowScale * 0.15, y: -arrowScale * 0.3)
-
-            // Arrowhead top
-            ArrowheadShape()
-                .fill(.white.opacity(0.95))
-                .frame(width: max(3, size * 0.07), height: max(3, size * 0.07))
-                .rotationEffect(.degrees(-30))
-                .offset(x: arrowScale * 0.55, y: -arrowScale * 0.28)
-
-            // Bottom-left arrow (counter-clockwise curve)
-            SyncArrowShape(clockwise: false)
-                .stroke(.white.opacity(0.95), style: StrokeStyle(
-                    lineWidth: max(1.5, size * 0.04),
-                    lineCap: .round
-                ))
-                .frame(width: arrowScale, height: arrowScale)
-                .offset(x: -arrowScale * 0.15, y: arrowScale * 0.3)
-
-            // Arrowhead bottom
-            ArrowheadShape()
-                .fill(.white.opacity(0.95))
-                .frame(width: max(3, size * 0.07), height: max(3, size * 0.07))
-                .rotationEffect(.degrees(150))
-                .offset(x: -arrowScale * 0.55, y: arrowScale * 0.28)
-        }
-    }
 }
 
-// MARK: - Gear Shape
+// MARK: - ShiftSync Mark (Gear with Sync Arrows)
 
-struct GearShape: Shape {
-    let toothCount: Int
-    let toothDepth: CGFloat
-
+struct ShiftSyncMark: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let outerRadius = min(rect.width, rect.height) / 2
-        let innerRadius = outerRadius * (1 - toothDepth)
-        let anglePerTooth = (2 * .pi) / Double(toothCount)
-        let toothWidth = anglePerTooth * 0.35
+        let cx = rect.midX
+        let cy = rect.midY
+        let unit = min(rect.width, rect.height) / 2
+
+        // --- Outer gear ring ---
+        let outerR = unit
+        let innerR = unit * 0.78
+        let toothCount = 8
+        let anglePerTooth = (2.0 * .pi) / Double(toothCount)
+        let toothHalf = anglePerTooth * 0.28
 
         for i in 0..<toothCount {
-            let startAngle = Double(i) * anglePerTooth - .pi / 2
+            let centerAngle = Double(i) * anglePerTooth - .pi / 2
 
-            // Inner arc (valley)
-            let valleyStart = startAngle + toothWidth
-            let valleyEnd = startAngle + anglePerTooth - toothWidth
-
+            // Tooth outer arc
+            let tStart = centerAngle - toothHalf
+            let tEnd = centerAngle + toothHalf
             if i == 0 {
-                let x = center.x + CGFloat(cos(startAngle)) * outerRadius
-                let y = center.y + CGFloat(sin(startAngle)) * outerRadius
+                let x = cx + CGFloat(cos(tStart)) * outerR
+                let y = cy + CGFloat(sin(tStart)) * outerR
                 path.move(to: CGPoint(x: x, y: y))
             }
+            path.addArc(center: CGPoint(x: cx, y: cy), radius: outerR,
+                        startAngle: .radians(tStart), endAngle: .radians(tEnd), clockwise: false)
 
-            // Outer tooth arc
-            let toothEnd = startAngle + toothWidth
-            path.addArc(center: center, radius: outerRadius,
-                        startAngle: .radians(startAngle),
-                        endAngle: .radians(toothEnd),
-                        clockwise: false)
+            // Valley (inner arc)
+            let vStart = tEnd
+            let vEnd = centerAngle + anglePerTooth - toothHalf
+            let vsx = cx + CGFloat(cos(vStart)) * innerR
+            let vsy = cy + CGFloat(sin(vStart)) * innerR
+            path.addLine(to: CGPoint(x: vsx, y: vsy))
+            path.addArc(center: CGPoint(x: cx, y: cy), radius: innerR,
+                        startAngle: .radians(vStart), endAngle: .radians(vEnd), clockwise: false)
 
-            // Transition to inner
-            let ix1 = center.x + CGFloat(cos(valleyStart)) * innerRadius
-            let iy1 = center.y + CGFloat(sin(valleyStart)) * innerRadius
-            path.addLine(to: CGPoint(x: ix1, y: iy1))
-
-            // Inner arc (valley)
-            path.addArc(center: center, radius: innerRadius,
-                        startAngle: .radians(valleyStart),
-                        endAngle: .radians(valleyEnd),
-                        clockwise: false)
-
-            // Transition back to outer
-            let ox = center.x + CGFloat(cos(valleyEnd)) * outerRadius
-            let oy = center.y + CGFloat(sin(valleyEnd)) * outerRadius
-            path.addLine(to: CGPoint(x: ox, y: oy))
-
-            // Outer tooth arc to next
-            let nextStart = startAngle + anglePerTooth
-            path.addArc(center: center, radius: outerRadius,
-                        startAngle: .radians(valleyEnd),
-                        endAngle: .radians(nextStart),
-                        clockwise: false)
+            // Back up to next tooth
+            let nsx = cx + CGFloat(cos(vEnd)) * outerR
+            let nsy = cy + CGFloat(sin(vEnd)) * outerR
+            path.addLine(to: CGPoint(x: nsx, y: nsy))
         }
-
         path.closeSubpath()
-        return path
-    }
-}
 
-// MARK: - Sync Arrow Shape
+        // --- Hollow center (ring cutout via even-odd) ---
+        let holeR = unit * 0.52
+        path.addEllipse(in: CGRect(x: cx - holeR, y: cy - holeR,
+                                    width: holeR * 2, height: holeR * 2))
 
-struct SyncArrowShape: Shape {
-    let clockwise: Bool
+        // --- Sync arrows inside the hole ---
+        let arrowR = unit * 0.36
+        let stroke = unit * 0.13
+        let arrowLen: CGFloat = unit * 0.18
 
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius = min(rect.width, rect.height) / 2
+        // Top arrow: arc from 210° to 330°
+        addArrowArc(to: &path, center: CGPoint(x: cx, y: cy),
+                     radius: arrowR, stroke: stroke,
+                     startDeg: 210, endDeg: 330, arrowSize: arrowLen)
 
-        if clockwise {
-            path.addArc(center: center, radius: radius,
-                        startAngle: .degrees(-180),
-                        endAngle: .degrees(30),
-                        clockwise: false)
-        } else {
-            path.addArc(center: center, radius: radius,
-                        startAngle: .degrees(0),
-                        endAngle: .degrees(210),
-                        clockwise: false)
-        }
+        // Bottom arrow: arc from 30° to 150°
+        addArrowArc(to: &path, center: CGPoint(x: cx, y: cy),
+                     radius: arrowR, stroke: stroke,
+                     startDeg: 30, endDeg: 150, arrowSize: arrowLen)
 
         return path
     }
-}
 
-// MARK: - Arrowhead Shape
+    private func addArrowArc(to path: inout Path,
+                              center: CGPoint, radius: CGFloat, stroke: CGFloat,
+                              startDeg: Double, endDeg: Double, arrowSize: CGFloat) {
+        let startRad = startDeg * .pi / 180
+        let endRad = endDeg * .pi / 180
 
-struct ArrowheadShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-        path.closeSubpath()
-        return path
+        // Outer edge of arc stroke
+        let outerR = radius + stroke / 2
+        let innerR = radius - stroke / 2
+
+        // Build thick arc as a filled shape
+        var arc = Path()
+
+        // Outer arc (forward)
+        arc.addArc(center: center, radius: outerR,
+                   startAngle: .radians(startRad), endAngle: .radians(endRad), clockwise: false)
+
+        // Inner arc (reverse)
+        arc.addArc(center: center, radius: innerR,
+                   startAngle: .radians(endRad), endAngle: .radians(startRad), clockwise: true)
+        arc.closeSubpath()
+
+        path.addPath(arc)
+
+        // Arrowhead at end of arc
+        let tipAngle = endRad
+        let tipX = center.x + CGFloat(cos(tipAngle)) * radius
+        let tipY = center.y + CGFloat(sin(tipAngle)) * radius
+
+        // Arrow points outward along the arc tangent
+        let tangent = tipAngle + .pi / 2  // perpendicular to radius = tangent direction
+        let spreadAngle: CGFloat = 0.45
+        let backLeft = CGFloat(tangent) - .pi + spreadAngle
+        let backRight = CGFloat(tangent) - .pi - spreadAngle
+
+        var arrow = Path()
+        arrow.move(to: CGPoint(x: tipX, y: tipY))
+        arrow.addLine(to: CGPoint(
+            x: tipX + CGFloat(cos(backLeft)) * arrowSize,
+            y: tipY + CGFloat(sin(backLeft)) * arrowSize
+        ))
+        arrow.addLine(to: CGPoint(
+            x: tipX + CGFloat(cos(backRight)) * arrowSize,
+            y: tipY + CGFloat(sin(backRight)) * arrowSize
+        ))
+        arrow.closeSubpath()
+
+        path.addPath(arrow)
     }
 }
 
@@ -205,6 +157,7 @@ struct ArrowheadShape: Shape {
         TCTheme.bg.ignoresSafeArea()
 
         VStack(spacing: 30) {
+            AppLogo(size: 120)
             AppLogo(size: 80)
             AppLogo(size: 42)
             AppLogo(size: 28)

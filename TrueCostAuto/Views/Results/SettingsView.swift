@@ -123,7 +123,7 @@ struct SettingsView: View {
                 HStack(spacing: 14) {
                     AppLogo(size: 52)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("ShiftSync")
+                        Text("TrueCost Auto")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundStyle(TCTheme.text)
                         Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
@@ -133,7 +133,7 @@ struct SettingsView: View {
                     Spacer()
                 }
 
-                Text("See the true cost of any vehicle — not just the sticker price. ShiftSync calculates your real monthly cost including loan payments, insurance, fuel, maintenance, and depreciation.")
+                Text("See the true cost of any vehicle — not just the sticker price. TrueCost Auto calculates your real monthly cost including loan payments, insurance, fuel, maintenance, and depreciation.")
                     .font(.system(size: 12))
                     .foregroundStyle(TCTheme.muted)
                     .lineSpacing(3)
@@ -158,7 +158,7 @@ struct SettingsView: View {
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundStyle(TCTheme.muted)
                     }
-                    Text("ShiftSync provides estimates for informational purposes only and does not constitute financial advice. Actual costs may vary based on lender terms, market conditions, and other factors. Always verify figures with your lender or financial advisor before making purchase decisions.")
+                    Text("TrueCost Auto provides estimates for informational purposes only and does not constitute financial advice. Actual costs may vary based on lender terms, market conditions, and other factors. Always verify figures with your lender or financial advisor before making purchase decisions.")
                         .font(.system(size: 10))
                         .foregroundStyle(TCTheme.muted.opacity(0.7))
                         .lineSpacing(2)

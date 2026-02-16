@@ -88,7 +88,7 @@ struct ShareCardView: View {
             // Header
             HStack {
                 AppLogo(size: 28)
-                Text("ShiftSync")
+                Text("TrueCost Auto")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(TCTheme.text)
                 Spacer()
@@ -156,7 +156,7 @@ struct ShareCardView: View {
 
     private var shareText: String {
         """
-        ShiftSync - \(vehicle.name)
+        TrueCost Auto - \(vehicle.name)
         --------------------------------
         True Monthly Cost: \(TCTheme.formatCurrency(result.trueMonthlyCost))
         Daily Cost: ~\(TCTheme.formatCurrencyWithCents(result.dailyCost))
@@ -168,7 +168,7 @@ struct ShareCardView: View {
         5-Year Cost: \(TCTheme.formatCurrency(result.fiveYearCost))
         Smart Score: \(result.smartScore.rawValue)\(result.incomePercentage.map { " (\(String(format: "%.1f", $0))% of income)" } ?? "")
         --------------------------------
-        Calculated with ShiftSync
+        Calculated with TrueCost Auto
         """
     }
 }
