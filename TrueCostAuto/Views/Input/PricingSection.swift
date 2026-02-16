@@ -71,7 +71,8 @@ struct PricingSection: View {
                 HStack(spacing: 12) {
                     PercentField(
                         label: "Est. Annual Depreciation",
-                        value: $vm.vehicle.depreciationRate
+                        value: $vm.vehicle.depreciationRate,
+                        maxValue: 99
                     )
                 }
                 .padding(14)

@@ -297,7 +297,11 @@ struct ResultsView: View {
     }
 
     private func actionRow(title: String, subtitle: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        Button {
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
+            action()
+        } label: {
             HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.system(size: 16))
@@ -330,6 +334,8 @@ struct ResultsView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityHint(subtitle)
     }
 
     // MARK: - Save Button
@@ -351,6 +357,8 @@ struct ResultsView: View {
             .shadow(color: TCTheme.accent.opacity(0.2), radius: 12, y: 6)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Save vehicle")
+        .accessibilityHint("Saves this vehicle to your collection for later comparison")
     }
 
     // MARK: - Amortization Sheet

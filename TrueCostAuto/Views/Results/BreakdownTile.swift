@@ -31,6 +31,8 @@ struct BreakdownTile: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .tcTile()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(value), \(subtitle)")
     }
 }
 

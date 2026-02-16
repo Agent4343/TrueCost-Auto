@@ -56,6 +56,8 @@ struct SettingsView: View {
             VStack(spacing: 12) {
                 ForEach(CurrencyRegion.allCases, id: \.self) { region in
                     Button {
+                        let impact = UIImpactFeedbackGenerator(style: .light)
+                        impact.impactOccurred()
                         viewModel.setCurrency(region)
                     } label: {
                         HStack(spacing: 12) {
@@ -83,6 +85,8 @@ struct SettingsView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(region.rawValue)
+                    .accessibilityAddTraits(viewModel.currency == region ? .isSelected : [])
                 }
             }
             .padding(14)
@@ -122,7 +126,7 @@ struct SettingsView: View {
                         Text("TrueCost Auto")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundStyle(TCTheme.text)
-                        Text("Version 1.0.0")
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
                             .font(.system(size: 12))
                             .foregroundStyle(TCTheme.muted)
                     }
@@ -195,6 +199,8 @@ struct SettingsView: View {
                 }
 
                 Button {
+                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                    impact.impactOccurred()
                     showResetAlert = true
                 } label: {
                     HStack(spacing: 8) {
@@ -214,6 +220,8 @@ struct SettingsView: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Reset all data")
+                .accessibilityHint("Deletes all saved vehicles and resets the calculator")
             }
             .padding(14)
         }

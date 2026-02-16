@@ -73,6 +73,8 @@ struct ExtraPaymentView: View {
                 HStack(spacing: 8) {
                     ForEach([50, 100, 200, 300, 500], id: \.self) { amount in
                         Button {
+                            let impact = UIImpactFeedbackGenerator(style: .light)
+                            impact.impactOccurred()
                             extraAmount = Double(amount)
                             recalculate()
                         } label: {
@@ -95,6 +97,8 @@ struct ExtraPaymentView: View {
                                 )
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Add \(amount) dollars extra")
+                        .accessibilityAddTraits(extraAmount == Double(amount) ? .isSelected : [])
                     }
                 }
             }

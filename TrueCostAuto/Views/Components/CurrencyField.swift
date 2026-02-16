@@ -16,17 +16,7 @@ struct CurrencyField: View {
                     .font(.system(size: 12))
                     .foregroundStyle(TCTheme.muted)
                 Spacer()
-                Text(unit)
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(Color(red: 0.812, green: 0.878, blue: 1.0))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(TCTheme.accent.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 9, style: .continuous)
-                            .stroke(Color(red: 0.62, green: 0.737, blue: 1.0).opacity(0.25), lineWidth: 1)
-                    )
+                unitBadge(unit)
             }
 
             TextField(placeholder, text: $text)
@@ -34,11 +24,14 @@ struct CurrencyField: View {
                 .font(.system(size: 16))
                 .foregroundStyle(TCTheme.text)
                 .focused($isFocused)
+                .accessibilityLabel(label)
+                .accessibilityValue(formatNumber(value) + " " + unit)
                 .onChange(of: isFocused) { _, focused in
                     if focused {
                         text = value == 0 ? "" : formatNumber(value)
                     } else {
-                        value = parseNumber(text)
+                        let parsed = parseNumber(text)
+                        value = max(0, parsed)
                         text = formatNumber(value)
                     }
                 }
@@ -69,6 +62,7 @@ struct CurrencyField: View {
 struct PercentField: View {
     let label: String
     @Binding var value: Double
+    var maxValue: Double = 100
 
     @State private var text: String = ""
     @FocusState private var isFocused: Bool
@@ -80,17 +74,7 @@ struct PercentField: View {
                     .font(.system(size: 12))
                     .foregroundStyle(TCTheme.muted)
                 Spacer()
-                Text("%")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(Color(red: 0.812, green: 0.878, blue: 1.0))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(TCTheme.accent.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 9, style: .continuous)
-                            .stroke(Color(red: 0.62, green: 0.737, blue: 1.0).opacity(0.25), lineWidth: 1)
-                    )
+                unitBadge("%")
             }
 
             TextField("0.0", text: $text)
@@ -98,11 +82,14 @@ struct PercentField: View {
                 .font(.system(size: 16))
                 .foregroundStyle(TCTheme.text)
                 .focused($isFocused)
+                .accessibilityLabel(label)
+                .accessibilityValue(String(format: "%.2f percent", value))
                 .onChange(of: isFocused) { _, focused in
                     if focused {
                         text = value == 0 ? "" : String(format: "%.2f", value)
                     } else {
-                        value = Double(text) ?? 0
+                        let parsed = Double(text) ?? 0
+                        value = min(max(0, parsed), maxValue)
                         text = String(format: "%.2f", value)
                     }
                 }
@@ -125,17 +112,7 @@ struct TermPicker: View {
                     .font(.system(size: 12))
                     .foregroundStyle(TCTheme.muted)
                 Spacer()
-                Text("mo")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(Color(red: 0.812, green: 0.878, blue: 1.0))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(TCTheme.accent.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 9, style: .continuous)
-                            .stroke(Color(red: 0.62, green: 0.737, blue: 1.0).opacity(0.25), lineWidth: 1)
-                    )
+                unitBadge("mo")
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -166,10 +143,29 @@ struct TermPicker: View {
                                 )
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("\(term) months")
+                        .accessibilityAddTraits(selectedTerm == term ? .isSelected : [])
                     }
                 }
             }
         }
         .tcField()
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Loan term selector")
     }
+}
+
+// Shared unit badge used by CurrencyField, PercentField, TermPicker
+private func unitBadge(_ text: String) -> some View {
+    Text(text)
+        .font(.system(size: 11, design: .monospaced))
+        .foregroundStyle(TCTheme.unitText)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(TCTheme.accent.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .stroke(TCTheme.unitBorder.opacity(0.25), lineWidth: 1)
+        )
 }

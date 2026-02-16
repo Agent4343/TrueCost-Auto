@@ -90,7 +90,7 @@ struct CompareView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             Image(systemName: "bookmark.slash")
                 .font(.system(size: 32))
                 .foregroundStyle(TCTheme.muted)
@@ -101,6 +101,24 @@ struct CompareView: View {
                 .font(.system(size: 12))
                 .foregroundStyle(TCTheme.muted.opacity(0.7))
                 .multilineTextAlignment(.center)
+
+            Button {
+                dismiss()
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 12))
+                    Text("Go Back")
+                        .font(.system(size: 13, weight: .semibold))
+                }
+                .foregroundStyle(TCTheme.accent)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(TCTheme.accent.opacity(0.1))
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(TCTheme.accent.opacity(0.2), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
         }
         .padding(32)
         .frame(maxWidth: .infinity)
@@ -109,13 +127,21 @@ struct CompareView: View {
 
     private var pickSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Select vehicles to compare (up to 3)")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(TCTheme.muted)
+            HStack {
+                Text("Select vehicles to compare")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(TCTheme.muted)
+                Spacer()
+                Text("\(selectedVehicles.count)/3")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(selectedVehicles.count == 3 ? TCTheme.good : TCTheme.accent)
+            }
 
             ForEach(store.savedVehicles.filter { $0.id != viewModel.vehicle.id }) { vehicle in
                 let isSelected = selectedVehicles.contains(vehicle.id)
                 Button {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
                     if isSelected {
                         selectedVehicles.remove(vehicle.id)
                     } else if selectedVehicles.count < 3 {

@@ -53,6 +53,8 @@ struct SmartScoreView: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Smart Score: \(result.smartScore.rawValue), \(Int(result.smartScoreValue)) out of 100\(result.incomePercentage.map { String(format: ", %.1f percent of income", $0) } ?? "")")
         .onAppear {
             withAnimation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.4)) {
                 animateBar = true

@@ -85,6 +85,8 @@ struct VehicleInputView: View {
             .shadow(color: TCTheme.accent.opacity(0.25), radius: 15, y: 8)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Calculate true cost")
+        .accessibilityHint("Calculates the total monthly cost including all expenses")
     }
 }
 

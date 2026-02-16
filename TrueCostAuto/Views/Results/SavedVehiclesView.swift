@@ -51,6 +51,8 @@ struct SavedVehiclesView: View {
         let result = CostCalculator.calculate(for: vehicle)
 
         return Button {
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
             viewModel.loadVehicle(vehicle)
         } label: {
             VStack(spacing: 12) {
@@ -67,6 +69,8 @@ struct SavedVehiclesView: View {
 
                     // Delete
                     Button {
+                        let impact = UINotificationFeedbackGenerator()
+                        impact.notificationOccurred(.warning)
                         withAnimation {
                             store.delete(vehicle)
                         }
@@ -76,6 +80,7 @@ struct SavedVehiclesView: View {
                             .foregroundStyle(TCTheme.bad.opacity(0.7))
                             .padding(8)
                     }
+                    .accessibilityLabel("Delete \(vehicle.name)")
                 }
 
                 Divider().overlay(TCTheme.line)
@@ -91,6 +96,8 @@ struct SavedVehiclesView: View {
             .tcCard()
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("\(vehicle.name), true cost \(TCTheme.formatCurrency(result.trueMonthlyCost)) per month, score \(result.smartScore.rawValue)")
+        .accessibilityHint("Tap to load this vehicle")
     }
 
     private func miniMetric(_ label: String, _ value: String, _ color: Color) -> some View {

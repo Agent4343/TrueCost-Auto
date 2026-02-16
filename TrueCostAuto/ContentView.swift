@@ -112,6 +112,7 @@ struct ContentView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Edit and recalculate")
                     } else {
                         VehicleInputView()
                     }
@@ -165,16 +166,22 @@ struct ContentView: View {
                             .stroke(TCTheme.accent.opacity(0.2), lineWidth: 1)
                     )
             }
+            .accessibilityLabel("Currency: \(viewModel.currency.rawValue)")
+            .accessibilityHint("Tap to change currency region")
 
             // New / edit toggle
             if viewModel.showResults {
                 Button {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
                     viewModel.reset()
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 22))
                         .foregroundStyle(TCTheme.accent)
                 }
+                .accessibilityLabel("New vehicle")
+                .accessibilityHint("Start a new vehicle calculation")
             }
         }
         .padding(.top, 4)

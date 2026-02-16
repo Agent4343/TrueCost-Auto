@@ -15,6 +15,10 @@ enum TCTheme {
     static let accent2 = Color(red: 0.643, green: 0.420, blue: 1.0)
     static let depreciation = Color(red: 1.0, green: 0.6, blue: 0.3)
 
+    // Unit badge colors (used in CurrencyField / PercentField)
+    static let unitText = Color(red: 0.812, green: 0.878, blue: 1.0)
+    static let unitBorder = Color(red: 0.62, green: 0.737, blue: 1.0)
+
     static let accentGradient = LinearGradient(
         colors: [accent, accent2],
         startPoint: .topLeading,

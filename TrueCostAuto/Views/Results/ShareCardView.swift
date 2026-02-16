@@ -23,6 +23,8 @@ struct ShareCardView: View {
 
                         // Share button
                         Button {
+                            let impact = UIImpactFeedbackGenerator(style: .medium)
+                            impact.impactOccurred()
                             showShareSheet = true
                         } label: {
                             HStack(spacing: 8) {
@@ -37,6 +39,7 @@ struct ShareCardView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Share vehicle summary")
 
                         // Copy text
                         Button {
@@ -60,6 +63,7 @@ struct ShareCardView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Copy summary as text")
                     }
                     .padding(16)
                 }

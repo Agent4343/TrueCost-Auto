@@ -51,6 +51,8 @@ struct TrueCostHeroCard: View {
                     lineWidth: 1
                 )
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("True monthly cost \(TCTheme.formatCurrency(result.trueMonthlyCost)), approximately \(TCTheme.formatCurrencyWithCents(result.dailyCost)) per day, Smart Score \(result.smartScore.rawValue)")
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2)) {
                 animateValue = true
