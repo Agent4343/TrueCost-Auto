@@ -485,7 +485,7 @@ border:1px solid rgba(106,165,255,0.2);border-radius:14px;cursor:pointer;transit
 <button class="dep-term-btn term-btn" onclick="setDepYears(10)">10 yr</button>
 </div></div>
 <div class="depreciation-visual" id="depVisual"></div>
-<div class="computed-value"><span class="label">Est. value after 5 yrs:</span> <span id="depEstimate">--</span></div>
+<div class="computed-value"><span class="label">Est. value after <span id="depYearsLabel">5</span> yrs:</span> <span id="depEstimate">--</span></div>
 <div class="tips"><span class="tip">15% avg for new cars</span><span class="tip">10% avg for used</span></div>
 </div>
 </div>
@@ -705,6 +705,7 @@ function setDepYears(y) {
   document.querySelectorAll('.dep-term-btn').forEach(b => {
     b.classList.toggle('active', b.textContent.trim() === y + ' yr');
   });
+  document.getElementById('depYearsLabel').textContent = y;
   updateDepreciation();
 }
 
@@ -893,14 +894,25 @@ function renderTimelineChart() {
     if (i > 0) gridlines += `<line x1="${padL}" y1="${y}" x2="${padL + chartW}" y2="${y}" class="chart-gridline"/>`;
   }
 
-  // X-axis labels
-  const xSteps = Math.min(6, months);
+  // X-axis labels (use year intervals to avoid duplicates)
   let xLabels = '';
-  for (let i = 0; i <= xSteps; i++) {
-    const monthIdx = Math.round((months / xSteps) * i);
+  const totalYears = Math.ceil(months / 12);
+  const yearStep = Math.max(1, Math.round(totalYears / 5));
+  const usedLabels = new Set();
+  for (let yr = 0; yr <= totalYears; yr += yearStep) {
+    const monthIdx = Math.min(yr * 12, months);
     const x = padL + (monthIdx / months) * chartW;
-    const label = monthIdx === 0 ? '0' : monthIdx >= 12 ? (monthIdx / 12).toFixed(0) + 'yr' : monthIdx + 'mo';
-    xLabels += `<text x="${x}" y="${h - 5}" text-anchor="middle" class="chart-label">${label}</text>`;
+    const label = yr === 0 ? '0' : yr + 'yr';
+    if (!usedLabels.has(label)) {
+      usedLabels.add(label);
+      xLabels += `<text x="${x}" y="${h - 5}" text-anchor="middle" class="chart-label">${label}</text>`;
+    }
+  }
+  // Always show the final point
+  const finalX = padL + chartW;
+  const finalLabel = totalYears + 'yr';
+  if (!usedLabels.has(finalLabel)) {
+    xLabels += `<text x="${finalX}" y="${h - 5}" text-anchor="middle" class="chart-label">${finalLabel}</text>`;
   }
 
   container.innerHTML = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">
