@@ -21,6 +21,7 @@ struct Vehicle: Identifiable, Hashable {
     var fuel: Double = 240
     var maintenance: Double = 60
     var tiresAndOther: Double = 30
+    var warranty: Double = 0
 
     // Depreciation
     var depreciationRate: Double = 15.0
@@ -42,7 +43,7 @@ struct Vehicle: Identifiable, Hashable {
     }
 
     var totalRunningCosts: Double {
-        insurance + fuel + maintenance + tiresAndOther
+        insurance + fuel + maintenance + tiresAndOther + warranty
     }
 
     static let availableTerms = [24, 36, 48, 60, 72, 84, 96]
@@ -71,7 +72,7 @@ extension Vehicle: Codable {
         case id, name, createdAt
         case vehiclePrice, feesAndExtras, downPayment, tradeInValue
         case interestRate, loanTermMonths, salesTaxRate
-        case insurance, fuel, maintenance, tiresAndOther
+        case insurance, fuel, maintenance, tiresAndOther, warranty
         case depreciationRate
         case useFuelEstimator, annualDistance, fuelEfficiency, fuelPricePerUnit
         case monthlyIncome, extraMonthlyPayment
@@ -93,6 +94,7 @@ extension Vehicle: Codable {
         fuel = (try? c.decode(Double.self, forKey: .fuel)) ?? 240
         maintenance = (try? c.decode(Double.self, forKey: .maintenance)) ?? 60
         tiresAndOther = (try? c.decode(Double.self, forKey: .tiresAndOther)) ?? 30
+        warranty = (try? c.decode(Double.self, forKey: .warranty)) ?? 0
         depreciationRate = (try? c.decode(Double.self, forKey: .depreciationRate)) ?? 15.0
         useFuelEstimator = (try? c.decode(Bool.self, forKey: .useFuelEstimator)) ?? false
         annualDistance = (try? c.decode(Double.self, forKey: .annualDistance)) ?? 20000

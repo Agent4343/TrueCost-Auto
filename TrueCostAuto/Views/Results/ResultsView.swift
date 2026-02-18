@@ -206,6 +206,9 @@ struct ResultsView: View {
                 costRow("Fuel / Charging", viewModel.vehicle.fuel, result.trueMonthlyCost, TCTheme.good)
                 costRow("Maintenance", viewModel.vehicle.maintenance, result.trueMonthlyCost, TCTheme.warn)
                 costRow("Tires / Other", viewModel.vehicle.tiresAndOther, result.trueMonthlyCost, TCTheme.accent2)
+                if viewModel.vehicle.warranty > 0 {
+                    costRow("Warranty", viewModel.vehicle.warranty, result.trueMonthlyCost, TCTheme.depreciation)
+                }
                 costRow("Depreciation", result.monthlyDepreciation, result.trueMonthlyCost, TCTheme.depreciation)
             }
             .padding(14)

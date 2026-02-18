@@ -133,7 +133,7 @@ final class VehicleViewModel {
         True Monthly Cost: \(TCTheme.formatCurrency(r.trueMonthlyCost, symbol: sym))
         Daily Cost: \(TCTheme.formatCurrencyWithCents(r.dailyCost, symbol: sym))
         Loan Payment: \(TCTheme.formatCurrency(r.monthlyPayment, symbol: sym))/mo
-        Running Costs: \(TCTheme.formatCurrency(vehicle.totalRunningCosts, symbol: sym))/mo
+        Running Costs: \(TCTheme.formatCurrency(vehicle.totalRunningCosts, symbol: sym))/mo\(vehicle.warranty > 0 ? "\n        Warranty: \(TCTheme.formatCurrency(vehicle.warranty, symbol: sym))/mo" : "")
         Depreciation: \(TCTheme.formatCurrency(r.monthlyDepreciation, symbol: sym))/mo
         Total Interest: \(TCTheme.formatCurrency(r.totalInterest, symbol: sym))
         Total Paid: \(TCTheme.formatCurrency(r.totalPaid, symbol: sym))

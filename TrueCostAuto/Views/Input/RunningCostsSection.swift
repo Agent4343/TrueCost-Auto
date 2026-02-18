@@ -52,6 +52,11 @@ struct RunningCostsSection: View {
                     unit: "$/mo",
                     value: $vm.vehicle.tiresAndOther
                 )
+                CurrencyField(
+                    label: "Warranty",
+                    unit: "$/mo",
+                    value: $vm.vehicle.warranty
+                )
             }
             .padding(14)
 
@@ -146,6 +151,7 @@ struct RunningCostsSection: View {
             ("Fuel", viewModel.vehicle.fuel, TCTheme.good),
             ("Maint.", viewModel.vehicle.maintenance, TCTheme.warn),
             ("Other", viewModel.vehicle.tiresAndOther, TCTheme.accent2),
+            ("Warranty", viewModel.vehicle.warranty, TCTheme.depreciation),
         ]
 
         return AnyView(

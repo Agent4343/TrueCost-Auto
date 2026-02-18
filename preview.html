@@ -383,6 +383,8 @@ z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:no
 <div class="field-row"><input type="text" id="maintenance" value="60.00" oninput="updateRunningBar()"><div class="field-badge">/mo</div></div></div>
 <div class="field-group"><div class="field-label">Tires / Other</div>
 <div class="field-row"><input type="text" id="tires" value="30.00" oninput="updateRunningBar()"><div class="field-badge">/mo</div></div></div>
+<div class="field-group"><div class="field-label">Warranty</div>
+<div class="field-row"><input type="text" id="warranty" value="0.00" oninput="updateRunningBar()"><div class="field-badge">/mo</div></div></div>
 <div class="running-bar" id="runningBar">
 <div class="seg" style="background:var(--accent);width:36.5%"></div>
 <div class="seg" style="background:var(--good);width:46.2%"></div>
@@ -394,6 +396,7 @@ z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:no
 <span style="font-size:10px;color:var(--good)">&#9679; Fuel</span>
 <span style="font-size:10px;color:var(--warn)">&#9679; Maint.</span>
 <span style="font-size:10px;color:var(--accent2)">&#9679; Tires</span>
+<span style="font-size:10px;color:var(--bad)">&#9679; Warranty</span>
 </div>
 </div>
 </div>
@@ -595,7 +598,8 @@ function updateRunningBar() {
   const fuel = parseNum('fuel');
   const maint = parseNum('maintenance');
   const tires = parseNum('tires');
-  const total = ins + fuel + maint + tires;
+  const warr = parseNum('warranty');
+  const total = ins + fuel + maint + tires + warr;
   if (total === 0) return;
   const bar = document.getElementById('runningBar');
   bar.innerHTML = `
@@ -603,6 +607,7 @@ function updateRunningBar() {
     <div class="seg" style="background:var(--good);width:${(fuel/total*100)}%"></div>
     <div class="seg" style="background:var(--warn);width:${(maint/total*100)}%"></div>
     <div class="seg" style="background:var(--accent2);width:${(tires/total*100)}%"></div>
+    <div class="seg" style="background:var(--bad);width:${(warr/total*100)}%"></div>
   `;
 }
 
@@ -619,6 +624,7 @@ function calculate() {
   const fuel = parseNum('fuel');
   const maint = parseNum('maintenance');
   const tires = parseNum('tires');
+  const warr = parseNum('warranty');
 
   const subtotal = price + fees - down - trade;
   const tax = subtotal * (taxRate / 100);
@@ -636,7 +642,7 @@ function calculate() {
   const biWeekly = monthlyPayment * 12 / 26;
   const totalPaid = monthlyPayment * n;
   const totalInterest = totalPaid - principal;
-  const runningCosts = ins + fuel + maint + tires;
+  const runningCosts = ins + fuel + maint + tires + warr;
   const trueMonthlyCost = monthlyPayment + runningCosts;
 
   const loanPortion = monthlyPayment * Math.min(60, n);
@@ -684,7 +690,7 @@ function calculate() {
   currentResult = {
     monthlyPayment, biWeekly, totalInterest, totalPaid, trueMonthlyCost,
     fiveYearCost, score, rating, ratingDesc, ratingColor, incPct,
-    principal, n, r, ins, fuel, maint, tires, runningCosts
+    principal, n, r, ins, fuel, maint, tires, warr, runningCosts
   };
 
   renderResults();
@@ -731,8 +737,9 @@ function renderResults() {
     { name: 'Insurance', amount: R.ins, color: 'var(--accent)' },
     { name: 'Fuel / Charging', amount: R.fuel, color: 'var(--good)' },
     { name: 'Maintenance', amount: R.maint, color: 'var(--warn)' },
-    { name: 'Tires / Other', amount: R.tires, color: 'var(--accent2)' }
+    { name: 'Tires / Other', amount: R.tires, color: 'var(--accent2)' },
   ];
+  if (R.warr > 0) items.push({ name: 'Warranty', amount: R.warr, color: 'var(--bad)' });
 
   let breakdownHTML = '<div style="padding:2px 0"><div style="font-size:14px;font-weight:700;margin-bottom:12px">Monthly Breakdown</div>';
   items.forEach(item => {
