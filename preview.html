@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0B1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="See the true monthly cost of any vehicle — beyond the sticker price.">
+<link rel="manifest" href="data:application/json,{%22name%22:%22TrueCost%20Auto%22,%22short_name%22:%22TrueCost%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%230B1220%22,%22theme_color%22:%22%230B1220%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%253Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%253E%253Crect%20fill%3D%27%236AA5FF%27%20width%3D%27100%27%20height%3D%27100%27%20rx%3D%2720%27%2F%253E%253Ctext%20x%3D%2750%25%27%20y%3D%2755%25%27%20dominant-baseline%3D%27middle%27%20text-anchor%3D%27middle%27%20font-size%3D%2750%27%253E%25F0%259F%259A%2597%253C%2Ftext%253E%253C%2Fsvg%253E%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]}">
 <title>TrueCost Auto - Interactive Preview</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -261,6 +266,56 @@ background:var(--good);color:#fff;padding:12px 24px;border-radius:14px;font-size
 z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
+/* Donut Chart */
+.donut-wrap{display:flex;align-items:center;gap:20px;padding:16px 0}
+.donut-svg{width:120px;height:120px;flex-shrink:0;transform:rotate(-90deg)}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.donut-center .dc-amount{font-size:16px;font-weight:800}
+.donut-center .dc-label{font-size:9px;color:var(--muted)}
+.donut-container{position:relative;width:120px;height:120px;flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:6px;flex:1}
+.donut-legend-item{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.donut-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.donut-legend-name{font-size:11px;color:var(--muted);flex:1}
+.donut-legend-val{font-size:12px;font-weight:700}
+
+/* Cost Timeline Chart */
+.timeline-chart{width:100%;height:180px;margin:12px 0 4px}
+.timeline-chart svg{width:100%;height:100%}
+.chart-label{font-size:10px;fill:var(--muted)}
+.chart-axis{stroke:var(--line);stroke-width:1}
+.chart-gridline{stroke:rgba(30,43,69,0.4);stroke-width:1;stroke-dasharray:4 4}
+
+/* Confetti */
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:500;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;opacity:0;animation:confettiFall 3s ease-out forwards}
+@keyframes confettiFall{
+0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}
+100%{opacity:0;transform:translateY(100vh) rotate(720deg) scale(0.5)}
+}
+
+/* Depreciation */
+.depreciation-visual{display:flex;align-items:flex-end;gap:4px;height:60px;padding:8px 0}
+.dep-bar{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--accent),var(--accent2));
+transition:height .5s ease;position:relative;min-width:0}
+.dep-bar-label{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--muted);white-space:nowrap}
+.dep-bar-val{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--text);white-space:nowrap;font-weight:600}
+
+/* Pulse animation for score */
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.score-pulse{animation:pulse .6s ease-in-out 2}
+
+/* PWA install banner */
+.pwa-install{display:none;align-items:center;gap:10px;padding:10px 16px;margin:0 16px 8px;
+background:linear-gradient(135deg,rgba(106,165,255,0.1),rgba(164,107,255,0.1));
+border:1px solid rgba(106,165,255,0.2);border-radius:14px;cursor:pointer;transition:all .2s}
+.pwa-install:hover{background:linear-gradient(135deg,rgba(106,165,255,0.15),rgba(164,107,255,0.15))}
+.pwa-install.visible{display:flex}
+.pwa-install-text{flex:1}
+.pwa-install-text h4{font-size:13px;font-weight:700}
+.pwa-install-text p{font-size:11px;color:var(--muted)}
+.pwa-dismiss{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px}
+
 /* Scrollbar */
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -273,6 +328,19 @@ z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:no
 
 <!-- Toast -->
 <div class="toast" id="toast">Saved!</div>
+
+<!-- Confetti Container -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- PWA Install Banner -->
+<div class="pwa-install" id="pwaInstall">
+<span style="font-size:24px">&#128242;</span>
+<div class="pwa-install-text">
+<h4>Install TrueCost Auto</h4>
+<p>Add to home screen for quick access</p>
+</div>
+<button class="pwa-dismiss" onclick="event.stopPropagation();dismissPwa()">&#10005;</button>
+</div>
 
 <!-- Onboarding -->
 <div class="onboarding" id="onboarding">
@@ -401,6 +469,27 @@ z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:no
 </div>
 </div>
 
+<!-- Depreciation -->
+<div class="card">
+<div class="card-header" onclick="toggleCard(this)">
+<h3><span class="icon" style="background:rgba(255,77,77,0.12);color:var(--bad)">&#128200;</span> Depreciation Estimate</h3>
+<span class="chevron">&#9660;</span>
+</div>
+<div class="card-body">
+<div class="field-group"><div class="field-label">Annual Depreciation Rate</div>
+<div class="field-row"><input type="text" id="depRate" value="15"><div class="field-badge">%/yr</div></div></div>
+<div class="field-group"><div class="field-label">Years to Estimate</div>
+<div class="term-picker">
+<button class="dep-term-btn term-btn active" onclick="setDepYears(5)">5 yr</button>
+<button class="dep-term-btn term-btn" onclick="setDepYears(7)">7 yr</button>
+<button class="dep-term-btn term-btn" onclick="setDepYears(10)">10 yr</button>
+</div></div>
+<div class="depreciation-visual" id="depVisual"></div>
+<div class="computed-value"><span class="label">Est. value after 5 yrs:</span> <span id="depEstimate">--</span></div>
+<div class="tips"><span class="tip">15% avg for new cars</span><span class="tip">10% avg for used</span></div>
+</div>
+</div>
+
 <!-- Calculate Button -->
 <button class="calc-btn" onclick="calculate()">&#10024; Calculate True Cost</button>
 </div>
@@ -421,6 +510,18 @@ z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:no
 
 <!-- Tiles -->
 <div class="tiles" id="tiles"></div>
+
+<!-- Donut Chart -->
+<div class="card breakdown-section" style="animation-delay:.3s">
+<div style="font-size:14px;font-weight:700;margin-bottom:4px">Cost Breakdown</div>
+<div class="donut-wrap" id="donutChart"></div>
+</div>
+
+<!-- Cost Timeline -->
+<div class="card breakdown-section" style="animation-delay:.35s">
+<div style="font-size:14px;font-weight:700;margin-bottom:4px">Cumulative Cost Over Time</div>
+<div class="timeline-chart" id="timelineChart"></div>
+</div>
 
 <!-- Monthly Breakdown -->
 <div class="card breakdown-section" id="breakdownSection"></div>
@@ -526,16 +627,25 @@ z-index:400;transition:transform .4s cubic-bezier(0.4,0,0.2,1);pointer-events:no
 let currency = 'CAD';
 let currSymbol = 'CA$';
 let loanTerm = 84;
-let savedVehicles = [];
+let savedVehicles = JSON.parse(localStorage.getItem('truecost_vehicles') || '[]');
 let currentResult = null;
 let amortSchedule = [];
 let onboardPage = 0;
+let depYears = 5;
+let deferredPrompt = null;
 
 const onboardData = [
   { title: 'See the Real Cost', desc: 'Go beyond the sticker price. See your true monthly cost including loan payments, insurance, fuel, and maintenance.' },
   { title: 'Smart Score', desc: 'Get an instant affordability rating based on your income, interest burden, and loan term. Know before you sign.' },
   { title: 'Compare & Decide', desc: 'Save multiple vehicles and compare them side-by-side. Make confident, data-driven decisions.' }
 ];
+
+// Check if onboarding was completed
+if (localStorage.getItem('truecost_onboarded')) {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('onboarding').classList.add('hidden');
+  });
+}
 
 // Helpers
 function parseNum(id) {
@@ -546,6 +656,16 @@ function fmt(n) {
 }
 function fmtShort(n) {
   return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function fmtCompact(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k';
+  return fmtShort(n);
+}
+
+// Persist saved vehicles
+function persistVehicles() {
+  localStorage.setItem('truecost_vehicles', JSON.stringify(savedVehicles));
 }
 
 // Currency
@@ -574,9 +694,42 @@ function toggleCard(header) {
 // Term
 function setTerm(t) {
   loanTerm = t;
-  document.querySelectorAll('.term-btn').forEach(b => {
+  document.querySelectorAll('.term-picker:not(:has(.dep-term-btn)) .term-btn').forEach(b => {
     b.classList.toggle('active', b.textContent.trim() === t + ' mo');
   });
+}
+
+// Depreciation
+function setDepYears(y) {
+  depYears = y;
+  document.querySelectorAll('.dep-term-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === y + ' yr');
+  });
+  updateDepreciation();
+}
+
+function updateDepreciation() {
+  const price = parseNum('vehiclePrice');
+  const rate = parseNum('depRate') / 100;
+  const visual = document.getElementById('depVisual');
+  const estimate = document.getElementById('depEstimate');
+  if (!price || !rate) { estimate.textContent = '--'; visual.innerHTML = ''; return; }
+
+  let html = '';
+  const values = [];
+  for (let y = 0; y <= depYears; y++) {
+    values.push(price * Math.pow(1 - rate, y));
+  }
+  const maxVal = values[0];
+  for (let y = 0; y <= depYears; y++) {
+    const pct = (values[y] / maxVal * 100);
+    html += `<div class="dep-bar" style="height:${Math.max(pct, 8)}%">
+      <div class="dep-bar-label">Yr ${y}</div>
+      <div class="dep-bar-val">${currSymbol}${fmtCompact(values[y])}</div>
+    </div>`;
+  }
+  visual.innerHTML = html;
+  estimate.textContent = currSymbol + fmt(values[depYears]);
 }
 
 // Amount financed
@@ -590,6 +743,7 @@ function calcFinanced() {
   const taxAmt = subtotal * (tax / 100);
   const total = subtotal + taxAmt;
   document.getElementById('amtFinanced').textContent = currSymbol + fmt(Math.max(total, 0));
+  updateDepreciation();
 }
 
 // Running costs bar
@@ -611,6 +765,169 @@ function updateRunningBar() {
   `;
 }
 
+// Animated counter
+function animateCounter(el, target, prefix, duration) {
+  const start = performance.now();
+  const from = 0;
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(from + (target - from) * eased);
+    el.textContent = prefix + fmtShort(current);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// Confetti
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  container.innerHTML = '';
+  const colors = ['#28D17C', '#6AA5FF', '#A46BFF', '#FFCC00', '#FF4D4D', '#fff'];
+  const shapes = ['circle', 'square', 'triangle'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size = 6 + Math.random() * 8;
+    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+    piece.style.left = (Math.random() * 100) + '%';
+    piece.style.top = '-10px';
+    piece.style.width = size + 'px';
+    piece.style.height = size + 'px';
+    piece.style.background = color;
+    piece.style.animationDelay = (Math.random() * 0.8) + 's';
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+    if (shape === 'circle') piece.style.borderRadius = '50%';
+    else if (shape === 'triangle') {
+      piece.style.background = 'transparent';
+      piece.style.width = '0'; piece.style.height = '0';
+      piece.style.borderLeft = size/2 + 'px solid transparent';
+      piece.style.borderRight = size/2 + 'px solid transparent';
+      piece.style.borderBottom = size + 'px solid ' + color;
+    }
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.innerHTML = '', 4000);
+}
+
+// SVG Donut Chart
+function renderDonutChart(items, total) {
+  const container = document.getElementById('donutChart');
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 0;
+
+  let arcs = '';
+  items.forEach(item => {
+    const pct = total > 0 ? item.amount / total : 0;
+    const dashLen = circumference * pct;
+    const dashGap = circumference - dashLen;
+    arcs += `<circle cx="55" cy="55" r="${radius}" fill="none" stroke="${item.cssColor}"
+      stroke-width="10" stroke-dasharray="${dashLen} ${dashGap}"
+      stroke-dashoffset="${-offset}" stroke-linecap="round" opacity="0.85">
+      <animate attributeName="stroke-dasharray" from="0 ${circumference}" to="${dashLen} ${dashGap}" dur="0.8s" fill="freeze" />
+    </circle>`;
+    offset += dashLen;
+  });
+
+  let legend = '';
+  items.forEach(item => {
+    legend += `<div class="donut-legend-item">
+      <div class="donut-legend-dot" style="background:${item.cssColor}"></div>
+      <span class="donut-legend-name">${item.name}</span>
+      <span class="donut-legend-val">${currSymbol}${fmtShort(item.amount)}</span>
+    </div>`;
+  });
+
+  container.innerHTML = `
+    <div class="donut-container">
+      <svg class="donut-svg" viewBox="0 0 110 110">${arcs}</svg>
+      <div class="donut-center">
+        <div class="dc-amount">${currSymbol}${fmtShort(total)}</div>
+        <div class="dc-label">per month</div>
+      </div>
+    </div>
+    <div class="donut-legend">${legend}</div>
+  `;
+}
+
+// Cost Timeline Chart (SVG line chart)
+function renderTimelineChart() {
+  const R = currentResult;
+  if (!R) return;
+  const container = document.getElementById('timelineChart');
+  const months = Math.min(R.n, 96);
+  const dataPoints = [];
+  let cumulative = 0;
+  for (let m = 1; m <= months; m++) {
+    cumulative += R.trueMonthlyCost;
+    dataPoints.push(cumulative);
+  }
+
+  const maxVal = dataPoints[dataPoints.length - 1];
+  const w = 380, h = 140, padL = 50, padR = 10, padT = 10, padB = 30;
+  const chartW = w - padL - padR;
+  const chartH = h - padT - padB;
+
+  // Build path
+  let pathD = '';
+  let areaD = '';
+  dataPoints.forEach((val, i) => {
+    const x = padL + (i / (dataPoints.length - 1)) * chartW;
+    const y = padT + chartH - (val / maxVal) * chartH;
+    if (i === 0) { pathD += `M${x},${y}`; areaD += `M${x},${padT + chartH} L${x},${y}`; }
+    else { pathD += ` L${x},${y}`; areaD += ` L${x},${y}`; }
+  });
+  areaD += ` L${padL + chartW},${padT + chartH} Z`;
+
+  // Y-axis labels
+  const ySteps = 4;
+  let yLabels = '';
+  let gridlines = '';
+  for (let i = 0; i <= ySteps; i++) {
+    const val = (maxVal / ySteps) * i;
+    const y = padT + chartH - (i / ySteps) * chartH;
+    yLabels += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end" class="chart-label">${currSymbol}${fmtCompact(val)}</text>`;
+    if (i > 0) gridlines += `<line x1="${padL}" y1="${y}" x2="${padL + chartW}" y2="${y}" class="chart-gridline"/>`;
+  }
+
+  // X-axis labels
+  const xSteps = Math.min(6, months);
+  let xLabels = '';
+  for (let i = 0; i <= xSteps; i++) {
+    const monthIdx = Math.round((months / xSteps) * i);
+    const x = padL + (monthIdx / months) * chartW;
+    const label = monthIdx === 0 ? '0' : monthIdx >= 12 ? (monthIdx / 12).toFixed(0) + 'yr' : monthIdx + 'mo';
+    xLabels += `<text x="${x}" y="${h - 5}" text-anchor="middle" class="chart-label">${label}</text>`;
+  }
+
+  container.innerHTML = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#6AA5FF" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#6AA5FF" stop-opacity="0.02"/>
+      </linearGradient>
+      <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#6AA5FF"/>
+        <stop offset="100%" stop-color="#A46BFF"/>
+      </linearGradient>
+    </defs>
+    ${gridlines}
+    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + chartH}" class="chart-axis"/>
+    <line x1="${padL}" y1="${padT + chartH}" x2="${padL + chartW}" y2="${padT + chartH}" class="chart-axis"/>
+    ${yLabels}${xLabels}
+    <path d="${areaD}" fill="url(#areaGrad)">
+      <animate attributeName="opacity" from="0" to="1" dur="0.6s" fill="freeze"/>
+    </path>
+    <path d="${pathD}" fill="none" stroke="url(#lineGrad)" stroke-width="2.5" stroke-linecap="round">
+      <animate attributeName="stroke-dashoffset" from="5000" to="0" dur="1.5s" fill="freeze"/>
+      <animate attributeName="stroke-dasharray" from="5000" to="5000" dur="0.01s" fill="freeze"/>
+    </path>
+  </svg>`;
+}
+
 // Core calculation
 function calculate() {
   const price = parseNum('vehiclePrice');
@@ -625,6 +942,7 @@ function calculate() {
   const maint = parseNum('maintenance');
   const tires = parseNum('tires');
   const warr = parseNum('warranty');
+  const depRate = parseNum('depRate');
 
   const subtotal = price + fees - down - trade;
   const tax = subtotal * (taxRate / 100);
@@ -648,6 +966,10 @@ function calculate() {
   const loanPortion = monthlyPayment * Math.min(60, n);
   const runningPortion = runningCosts * 60;
   const fiveYearCost = loanPortion + runningPortion + down;
+
+  // Depreciation over 5 years
+  const depLoss = price - price * Math.pow(1 - depRate / 100, 5);
+  const monthlyDep = depLoss / 60;
 
   // Smart Score
   let score = 100;
@@ -690,23 +1012,30 @@ function calculate() {
   currentResult = {
     monthlyPayment, biWeekly, totalInterest, totalPaid, trueMonthlyCost,
     fiveYearCost, score, rating, ratingDesc, ratingColor, incPct,
-    principal, n, r, ins, fuel, maint, tires, warr, runningCosts
+    principal, n, r, ins, fuel, maint, tires, warr, runningCosts,
+    depLoss, monthlyDep, vehiclePrice: price
   };
 
   renderResults();
   showScreen('results');
   calcExtra();
+
+  // Confetti for excellent scores
+  if (score >= 80) {
+    setTimeout(launchConfetti, 400);
+  }
 }
 
 function renderResults() {
   const R = currentResult;
 
-  // Hero
-  document.getElementById('trueCost').textContent = currSymbol + fmtShort(R.trueMonthlyCost);
+  // Animated hero cost
+  const heroEl = document.getElementById('trueCost');
+  animateCounter(heroEl, R.trueMonthlyCost, currSymbol, 800);
 
-  // Score badge
+  // Score badge with pulse
   document.getElementById('scoreBadge').innerHTML = `
-    <div class="score-circle" style="background:${R.ratingColor}22;color:${R.ratingColor}">
+    <div class="score-circle score-pulse" style="background:${R.ratingColor}22;color:${R.ratingColor}">
       ${Math.round(R.score)}
       <style>.score-circle::after{border-color:${R.ratingColor} !important}</style>
     </div>
@@ -715,7 +1044,7 @@ function renderResults() {
     ${R.incPct !== null ? `<div class="score-sublabel">${R.incPct.toFixed(1)}% of income</div>` : ''}
   `;
 
-  // Tiles
+  // Tiles with depreciation
   document.getElementById('tiles').innerHTML = `
     <div class="tile"><div class="tile-label">&#128179; Loan Payment</div>
       <div class="tile-value">${currSymbol}${fmtShort(R.monthlyPayment)}</div>
@@ -729,12 +1058,32 @@ function renderResults() {
     <div class="tile"><div class="tile-label">&#128197; 5-Year Cost</div>
       <div class="tile-value">${currSymbol}${fmtShort(R.fiveYearCost)}</div>
       <div class="tile-sub">Including running costs</div></div>
+    <div class="tile"><div class="tile-label">&#128200; Depreciation Loss</div>
+      <div class="tile-value" style="color:var(--bad)">${currSymbol}${fmtShort(R.depLoss)}</div>
+      <div class="tile-sub">Over 5 years</div></div>
+    <div class="tile"><div class="tile-label">&#128176; True Cost of Ownership</div>
+      <div class="tile-value" style="color:var(--warn)">${currSymbol}${fmtShort(R.fiveYearCost + R.depLoss)}</div>
+      <div class="tile-sub">5yr + depreciation</div></div>
   `;
+
+  // Donut chart
+  const donutItems = [
+    { name: 'Loan', amount: R.monthlyPayment, cssColor: '#6AA5FF' },
+    { name: 'Insurance', amount: R.ins, cssColor: '#4ECDC4' },
+    { name: 'Fuel', amount: R.fuel, cssColor: '#28D17C' },
+    { name: 'Maintenance', amount: R.maint, cssColor: '#FFCC00' },
+    { name: 'Tires', amount: R.tires, cssColor: '#A46BFF' },
+  ];
+  if (R.warr > 0) donutItems.push({ name: 'Warranty', amount: R.warr, cssColor: '#FF4D4D' });
+  renderDonutChart(donutItems, R.trueMonthlyCost);
+
+  // Timeline chart
+  renderTimelineChart();
 
   // Monthly breakdown
   const items = [
     { name: 'Loan Payment', amount: R.monthlyPayment, color: 'var(--accent)' },
-    { name: 'Insurance', amount: R.ins, color: 'var(--accent)' },
+    { name: 'Insurance', amount: R.ins, color: '#4ECDC4' },
     { name: 'Fuel / Charging', amount: R.fuel, color: 'var(--good)' },
     { name: 'Maintenance', amount: R.maint, color: 'var(--warn)' },
     { name: 'Tires / Other', amount: R.tires, color: 'var(--accent2)' },
@@ -861,21 +1210,33 @@ function renderShare() {
       </div>
     </div>
     <div class="share-btns">
-      <button class="btn-share" onclick="alert('Share sheet would open on iOS')">Share</button>
+      <button class="btn-share" onclick="shareNative()">Share</button>
       <button class="btn-copy" onclick="copyShareText()">Copy Text</button>
     </div>
   `;
+}
+
+function shareNative() {
+  if (!currentResult) return;
+  const R = currentResult;
+  const name = document.getElementById('vehicleName').value;
+  const text = `TrueCost Auto - ${name}\nTrue Monthly Cost: ${currSymbol}${fmtShort(R.trueMonthlyCost)}\nSmart Score: ${R.rating} (${Math.round(R.score)}/100)\n5-Year Cost: ${currSymbol}${fmtShort(R.fiveYearCost)}`;
+  if (navigator.share) {
+    navigator.share({ title: 'TrueCost Auto', text: text }).catch(() => {});
+  } else {
+    copyShareText();
+  }
 }
 
 function copyShareText() {
   if (!currentResult) return;
   const R = currentResult;
   const name = document.getElementById('vehicleName').value;
-  const text = `TrueCost Auto - ${name}\n\nTrue Monthly Cost: ${currSymbol}${fmtShort(R.trueMonthlyCost)}\nLoan Payment: ${currSymbol}${fmtShort(R.monthlyPayment)}/mo\nTotal Interest: ${currSymbol}${fmtShort(R.totalInterest)}\n5-Year Cost: ${currSymbol}${fmtShort(R.fiveYearCost)}\nSmart Score: ${R.rating} (${Math.round(R.score)}/100)`;
+  const text = `TrueCost Auto - ${name}\n\nTrue Monthly Cost: ${currSymbol}${fmtShort(R.trueMonthlyCost)}\nLoan Payment: ${currSymbol}${fmtShort(R.monthlyPayment)}/mo\nTotal Interest: ${currSymbol}${fmtShort(R.totalInterest)}\n5-Year Cost: ${currSymbol}${fmtShort(R.fiveYearCost)}\nDepreciation Loss: ${currSymbol}${fmtShort(R.depLoss)}\nSmart Score: ${R.rating} (${Math.round(R.score)}/100)`;
   navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
 }
 
-// Save Vehicle
+// Save Vehicle (with localStorage)
 function saveVehicle() {
   if (!currentResult) return;
   const vehicle = {
@@ -885,6 +1246,7 @@ function saveVehicle() {
     result: { ...currentResult }
   };
   savedVehicles.push(vehicle);
+  persistVehicles();
   renderSaved();
   showToast('Vehicle saved!');
 }
@@ -921,6 +1283,7 @@ function renderSaved() {
 
 function deleteSaved(i) {
   savedVehicles.splice(i, 1);
+  persistVehicles();
   renderSaved();
   showToast('Vehicle deleted');
 }
@@ -983,11 +1346,37 @@ function nextOnboard() {
 
 function finishOnboarding() {
   document.getElementById('onboarding').classList.add('hidden');
+  localStorage.setItem('truecost_onboarded', '1');
+}
+
+// PWA Install
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!localStorage.getItem('truecost_pwa_dismissed')) {
+    document.getElementById('pwaInstall').classList.add('visible');
+  }
+});
+
+document.getElementById('pwaInstall').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') showToast('App installed!');
+  deferredPrompt = null;
+  document.getElementById('pwaInstall').classList.remove('visible');
+});
+
+function dismissPwa() {
+  document.getElementById('pwaInstall').classList.remove('visible');
+  localStorage.setItem('truecost_pwa_dismissed', '1');
 }
 
 // Init
 calcFinanced();
 updateRunningBar();
+updateDepreciation();
+renderSaved();
 </script>
 </div>
 </body>
