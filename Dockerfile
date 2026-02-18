@@ -1,4 +1,5 @@
 FROM nginx:alpine
 COPY preview.html /usr/share/nginx/html/index.html
-EXPOSE 80
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+ENV PORT=80
 CMD ["nginx", "-g", "daemon off;"]
