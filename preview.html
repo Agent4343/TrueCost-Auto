@@ -320,6 +320,93 @@ border:1px solid rgba(106,165,255,0.2);border-radius:14px;cursor:pointer;transit
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
+
+/* Vehicle Picker */
+.picker-btn{display:flex;align-items:center;gap:8px;width:100%;padding:12px 14px;margin-top:8px;
+border:1px dashed var(--accent);border-radius:14px;background:rgba(106,165,255,0.06);
+color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.picker-btn:hover{background:rgba(106,165,255,0.12)}
+.picker-btn .picker-arrow{margin-left:auto;font-size:11px}
+.vehicle-preview-small{width:80px;height:35px;opacity:0.7}
+.vehicle-preview-small svg{width:100%;height:100%}
+.search-input{width:100%;padding:12px 14px;background:var(--panelAlt);border:1px solid var(--line);
+border-radius:14px;color:var(--text);font-size:14px;outline:none;margin-bottom:12px}
+.search-input::placeholder{color:rgba(159,176,208,0.4)}
+.make-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.make-btn{padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--panelAlt);
+color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
+.make-btn:hover,.make-btn.active{border-color:var(--accent);background:rgba(106,165,255,0.1)}
+.make-btn .make-flag{font-size:14px;display:block;margin-bottom:2px}
+.model-list{display:flex;flex-direction:column;gap:8px}
+.model-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);
+border-radius:14px;background:var(--panelAlt);cursor:pointer;transition:all .2s}
+.model-card:hover{border-color:var(--accent);background:rgba(106,165,255,0.06)}
+.model-card svg{width:70px;height:32px;flex-shrink:0}
+.model-info{flex:1}
+.model-info .model-name{font-size:14px;font-weight:700}
+.model-info .model-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.model-type-badge{padding:3px 8px;border-radius:8px;font-size:9px;font-weight:700;text-transform:uppercase;
+background:rgba(106,165,255,0.12);color:var(--accent)}
+.autofill-banner{display:flex;align-items:center;gap:8px;padding:10px 14px;margin-top:8px;
+background:rgba(40,209,124,0.08);border:1px solid rgba(40,209,124,0.2);border-radius:12px;
+font-size:12px;color:var(--good)}
+
+/* Deal Analysis */
+.deal-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;
+margin-top:16px;animation:fadeInUp .4s ease .45s both}
+.deal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.deal-header h3{font-size:15px;font-weight:700}
+.deal-stars{display:flex;gap:3px}
+.deal-stars .star{font-size:18px;color:var(--line)}
+.deal-stars .star.filled{color:var(--warn)}
+.pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.pros-col h4,.cons-col h4{font-size:11px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.pros-col h4{color:var(--good)}
+.cons-col h4{color:var(--bad)}
+.pro-item,.con-item{font-size:11px;color:var(--muted);padding:3px 0;display:flex;align-items:flex-start;gap:5px;line-height:1.4}
+.pro-item::before{content:'\\2713';color:var(--good);font-weight:700;flex-shrink:0;font-size:10px}
+.con-item::before{content:'\\2717';color:var(--bad);font-weight:700;flex-shrink:0;font-size:10px}
+.expert-tip{background:linear-gradient(135deg,rgba(255,204,0,0.08),rgba(164,107,255,0.06));
+border:1px solid rgba(255,204,0,0.15);border-radius:14px;padding:12px 14px;display:flex;gap:10px;margin-bottom:14px}
+.expert-tip .tip-icon{font-size:20px;flex-shrink:0}
+.expert-tip .tip-text{font-size:12px;color:var(--text);line-height:1.5}
+.expert-tip .tip-label{font-size:10px;font-weight:700;color:var(--warn);margin-bottom:4px}
+.notes-area{width:100%;min-height:60px;padding:10px 12px;background:var(--panelAlt);border:1px solid var(--line);
+border-radius:12px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;outline:none}
+.notes-area::placeholder{color:rgba(159,176,208,0.4)}
+.notes-label{font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500}
+
+/* Hero vehicle image */
+.hero-vehicle-svg{width:100%;max-width:160px;height:50px;margin:8px 0 4px;opacity:0.6}
+.hero-vehicle-svg svg{width:100%;height:100%}
+
+/* Saved card enhancements */
+.saved-card-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.saved-card-svg{width:60px;height:28px;opacity:0.5;flex-shrink:0}
+.saved-card-svg svg{width:100%;height:100%}
+.saved-stars{display:flex;gap:2px;margin-top:2px}
+.saved-stars .star{font-size:10px;color:var(--line)}
+.saved-stars .star.filled{color:var(--warn)}
+.saved-notes-preview{font-size:10px;color:var(--muted);margin-top:8px;
+overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-style:italic}
+
+/* Print */
+@media print{
+body{background:#fff!important;color:#000!important}
+.bg-glow,.tab-bar,.onboarding,.pwa-install,.confetti-container,.toast,
+.calc-btn,.save-btn,.back-btn,.actions,.modal-overlay,.header{display:none!important}
+.app-container{max-width:100%;background:#fff!important}
+.screen{display:block!important;padding:0!important}
+#screen-calc{display:none!important}
+#screen-saved{display:none!important}
+.card,.tile,.hero-card{border-color:#ddd!important;background:#f9f9f9!important;
+color:#000!important;break-inside:avoid}
+.tile-value,.amount,.breakdown-amt{color:#000!important}
+.print-header{display:block!important;text-align:center;padding:20px 0;border-bottom:2px solid #000;margin-bottom:20px}
+.print-header h1{font-size:24px;color:#000}
+.print-header p{font-size:12px;color:#666}
+}
+.print-header{display:none}
 </style>
 </head>
 <body>
@@ -383,6 +470,14 @@ border:1px solid rgba(106,165,255,0.2);border-radius:14px;cursor:pointer;transit
 <div class="field-row">
 <input type="text" id="vehicleName" value="New Vehicle" placeholder="e.g. 2024 Honda Civic">
 </div>
+<button class="picker-btn" onclick="openModal('picker')">
+<span>&#128269;</span> Browse Vehicle Database
+<span class="picker-arrow">&#8250;</span>
+</button>
+<div class="autofill-banner" id="autofillBanner" style="display:none">
+<span>&#9989;</span> <span id="autofillText">Estimates auto-filled from database</span>
+</div>
+<div class="vehicle-preview-small" id="vehiclePreviewSmall"></div>
 </div>
 </div>
 
@@ -496,7 +591,11 @@ border:1px solid rgba(106,165,255,0.2);border-radius:14px;cursor:pointer;transit
 
 <!-- Results Screen -->
 <div class="screen" id="screen-results">
+<div class="print-header"><h1>TrueCost Auto Report</h1><p>Generated on <span id="printDate"></span></p></div>
 <button class="back-btn" onclick="showScreen('calc')">&#8592; Edit Vehicle</button>
+
+<!-- Vehicle Image -->
+<div class="hero-vehicle-svg" id="heroVehicleSVG"></div>
 
 <!-- Hero Card -->
 <div class="hero-card" id="heroCard">
@@ -548,6 +647,20 @@ border:1px solid rgba(106,165,255,0.2);border-radius:14px;cursor:pointer;transit
 <div class="action-text"><h4>Amortization schedule</h4><p>Month-by-month payment breakdown</p></div>
 <span class="action-arrow">&#8250;</span>
 </div>
+<div class="action-row" onclick="exportPDF()">
+<div class="action-icon" style="background:rgba(106,165,255,0.12);color:var(--accent)">&#128424;</div>
+<div class="action-text"><h4>Export PDF report</h4><p>Print-ready cost analysis</p></div>
+<span class="action-arrow">&#8250;</span>
+</div>
+</div>
+
+<!-- Deal Analysis -->
+<div class="deal-card" id="dealAnalysis"></div>
+
+<!-- Notes -->
+<div style="margin-top:12px">
+<div class="notes-label">Personal Notes (saved with vehicle)</div>
+<textarea class="notes-area" id="vehicleNotes" placeholder="Add notes about this deal, dealer info, negotiation details..."></textarea>
 </div>
 
 <button class="save-btn" onclick="saveVehicle()">&#10003; Save Vehicle</button>
@@ -602,6 +715,18 @@ border:1px solid rgba(106,165,255,0.2);border-radius:14px;cursor:pointer;transit
 </div>
 </div>
 
+<div class="modal-overlay" id="modal-picker" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+<div class="modal-handle"></div>
+<h2>&#128663; Browse Vehicles</h2>
+<input type="text" class="search-input" id="vehicleSearch" placeholder="Search make or model..." oninput="filterVehicles()">
+<div id="pickerContent">
+<div class="make-grid" id="makeGrid"></div>
+<div class="model-list" id="modelList"></div>
+</div>
+</div>
+</div>
+
 <div class="modal-overlay" id="modal-share" onclick="closeModals(event)">
 <div class="modal" onclick="event.stopPropagation()">
 <div class="modal-handle"></div>
@@ -633,6 +758,248 @@ let amortSchedule = [];
 let onboardPage = 0;
 let depYears = 5;
 let deferredPrompt = null;
+let selectedVehicleType = 'sedan';
+let selectedMake = null;
+
+// Vehicle Database
+const vehicleDB = {
+  'Toyota':{flag:'&#127471;&#127477;',dep:12,maint:45,rel:4.5,models:{
+    'Camry':{type:'sedan',msrp:29500,mpg:32,ins:158},'Corolla':{type:'hatch',msrp:23500,mpg:35,ins:138},
+    'RAV4':{type:'suv',msrp:30500,mpg:30,ins:172},'Highlander':{type:'suv',msrp:40000,mpg:24,ins:188},
+    'Tacoma':{type:'truck',msrp:32000,mpg:23,ins:182}}},
+  'Honda':{flag:'&#127471;&#127477;',dep:13,maint:48,rel:4.4,models:{
+    'Civic':{type:'sedan',msrp:25000,mpg:36,ins:148},'Accord':{type:'sedan',msrp:29500,mpg:33,ins:162},
+    'CR-V':{type:'suv',msrp:31500,mpg:30,ins:168},'Pilot':{type:'suv',msrp:39500,mpg:23,ins:192},
+    'HR-V':{type:'suv',msrp:25500,mpg:32,ins:152}}},
+  'Ford':{flag:'&#127482;&#127480;',dep:17,maint:65,rel:3.5,models:{
+    'F-150':{type:'truck',msrp:36500,mpg:22,ins:198},'Escape':{type:'suv',msrp:30000,mpg:30,ins:165},
+    'Explorer':{type:'suv',msrp:38000,mpg:24,ins:188},'Mustang':{type:'sports',msrp:32000,mpg:25,ins:210}}},
+  'Chevrolet':{flag:'&#127482;&#127480;',dep:18,maint:62,rel:3.4,models:{
+    'Silverado':{type:'truck',msrp:37500,mpg:21,ins:195},'Equinox':{type:'suv',msrp:29000,mpg:31,ins:158},
+    'Malibu':{type:'sedan',msrp:26000,mpg:33,ins:148}}},
+  'Hyundai':{flag:'&#127472;&#127479;',dep:16,maint:42,rel:4.0,models:{
+    'Tucson':{type:'suv',msrp:29500,mpg:29,ins:162},'Elantra':{type:'sedan',msrp:22500,mpg:37,ins:135},
+    'Santa Fe':{type:'suv',msrp:34000,mpg:27,ins:175}}},
+  'Kia':{flag:'&#127472;&#127479;',dep:16,maint:40,rel:4.0,models:{
+    'Forte':{type:'sedan',msrp:20500,mpg:35,ins:130},'Sportage':{type:'suv',msrp:30500,mpg:29,ins:162},
+    'Telluride':{type:'suv',msrp:37000,mpg:23,ins:185}}},
+  'Tesla':{flag:'&#127482;&#127480;',dep:15,maint:25,rel:3.8,models:{
+    'Model 3':{type:'electric',msrp:40000,mpg:132,ins:195},'Model Y':{type:'electric',msrp:45000,mpg:120,ins:205}}},
+  'BMW':{flag:'&#127465;&#127466;',dep:20,maint:85,rel:3.2,models:{
+    '3 Series':{type:'sedan',msrp:44000,mpg:30,ins:210},'X3':{type:'suv',msrp:47000,mpg:27,ins:220},
+    'X5':{type:'suv',msrp:63000,mpg:24,ins:245}}},
+  'Mercedes':{flag:'&#127465;&#127466;',dep:21,maint:90,rel:3.1,models:{
+    'C-Class':{type:'sedan',msrp:46000,mpg:29,ins:215},'GLC':{type:'suv',msrp:48000,mpg:27,ins:225}}},
+  'Nissan':{flag:'&#127471;&#127477;',dep:17,maint:50,rel:3.6,models:{
+    'Altima':{type:'sedan',msrp:27500,mpg:32,ins:155},'Rogue':{type:'suv',msrp:30000,mpg:30,ins:165}}},
+  'Subaru':{flag:'&#127471;&#127477;',dep:14,maint:52,rel:4.1,models:{
+    'Outback':{type:'suv',msrp:31000,mpg:29,ins:160},'Forester':{type:'suv',msrp:30000,mpg:29,ins:158},
+    'Crosstrek':{type:'hatch',msrp:27500,mpg:30,ins:152}}},
+  'Mazda':{flag:'&#127471;&#127477;',dep:14,maint:48,rel:4.3,models:{
+    'CX-5':{type:'suv',msrp:29500,mpg:28,ins:160},'Mazda3':{type:'hatch',msrp:24000,mpg:32,ins:145}}},
+  'Jeep':{flag:'&#127482;&#127480;',dep:18,maint:70,rel:3.3,models:{
+    'Wrangler':{type:'suv',msrp:33000,mpg:22,ins:195},'Grand Cherokee':{type:'suv',msrp:40000,mpg:24,ins:200}}},
+  'Volkswagen':{flag:'&#127465;&#127466;',dep:17,maint:65,rel:3.5,models:{
+    'Jetta':{type:'sedan',msrp:22000,mpg:34,ins:142},'Tiguan':{type:'suv',msrp:30000,mpg:28,ins:165}}}
+};
+
+// SVG Vehicle Silhouettes
+function getVehicleSVG(type, color) {
+  const c = color || '#6AA5FF';
+  const w = '#1a2a44';
+  const paths = {
+    sedan: `<path d="M25,42 L30,42 L35,28 L55,22 L95,22 L110,28 L120,28 L130,32 L165,32 L170,38 L175,42 L180,42 L180,48 L170,50 L155,50 L155,48 L50,48 L50,50 L30,50 L20,48 L20,44 Z" fill="${c}" opacity="0.85"/>
+      <path d="M55,22 L62,12 L108,12 L120,22" fill="${c}" opacity="0.6"/>
+      <circle cx="50" cy="50" r="10" fill="${w}"/><circle cx="50" cy="50" r="6" fill="#2a3a54"/>
+      <circle cx="155" cy="50" r="10" fill="${w}"/><circle cx="155" cy="50" r="6" fill="#2a3a54"/>`,
+    suv: `<path d="M25,44 L30,44 L32,30 L50,18 L100,18 L118,18 L130,26 L170,26 L175,34 L178,44 L180,44 L180,48 L170,52 L152,52 L152,48 L52,48 L52,52 L32,52 L20,48 L20,44 Z" fill="${c}" opacity="0.85"/>
+      <path d="M50,18 L56,8 L112,8 L120,18" fill="${c}" opacity="0.6"/>
+      <circle cx="52" cy="52" r="11" fill="${w}"/><circle cx="52" cy="52" r="7" fill="#2a3a54"/>
+      <circle cx="152" cy="52" r="11" fill="${w}"/><circle cx="152" cy="52" r="7" fill="#2a3a54"/>`,
+    truck: `<path d="M25,44 L30,44 L32,30 L45,20 L85,20 L90,30 L95,30 L95,24 L165,24 L172,34 L178,44 L180,44 L180,48 L168,52 L152,52 L152,48 L52,48 L52,52 L32,52 L20,48 L20,44 Z" fill="${c}" opacity="0.85"/>
+      <path d="M45,20 L52,10 L82,10 L88,20" fill="${c}" opacity="0.6"/>
+      <line x1="90" y1="24" x2="90" y2="44" stroke="${w}" stroke-width="2"/>
+      <circle cx="52" cy="52" r="11" fill="${w}"/><circle cx="52" cy="52" r="7" fill="#2a3a54"/>
+      <circle cx="152" cy="52" r="11" fill="${w}"/><circle cx="152" cy="52" r="7" fill="#2a3a54"/>`,
+    coupe: `<path d="M25,44 L30,44 L38,30 L65,18 L105,18 L125,28 L170,32 L175,38 L178,44 L180,44 L180,48 L168,50 L155,50 L155,48 L50,48 L50,50 L30,50 L20,46 L20,44 Z" fill="${c}" opacity="0.85"/>
+      <path d="M65,18 L72,10 L102,10 L112,18" fill="${c}" opacity="0.6"/>
+      <circle cx="50" cy="50" r="10" fill="${w}"/><circle cx="50" cy="50" r="6" fill="#2a3a54"/>
+      <circle cx="155" cy="50" r="10" fill="${w}"/><circle cx="155" cy="50" r="6" fill="#2a3a54"/>`,
+    hatch: `<path d="M25,44 L30,44 L35,28 L55,20 L95,20 L115,20 L125,30 L165,32 L170,38 L175,44 L180,44 L180,48 L168,50 L155,50 L155,48 L50,48 L50,50 L30,50 L20,46 Z" fill="${c}" opacity="0.85"/>
+      <path d="M55,20 L62,10 L108,10 L118,20" fill="${c}" opacity="0.6"/>
+      <circle cx="50" cy="50" r="10" fill="${w}"/><circle cx="50" cy="50" r="6" fill="#2a3a54"/>
+      <circle cx="155" cy="50" r="10" fill="${w}"/><circle cx="155" cy="50" r="6" fill="#2a3a54"/>`,
+    van: `<path d="M20,44 L25,44 L28,18 L40,10 L110,10 L125,18 L170,18 L175,30 L178,44 L180,44 L180,48 L168,52 L152,52 L152,48 L52,48 L52,52 L32,52 L20,48 Z" fill="${c}" opacity="0.85"/>
+      <circle cx="52" cy="52" r="11" fill="${w}"/><circle cx="52" cy="52" r="7" fill="#2a3a54"/>
+      <circle cx="152" cy="52" r="11" fill="${w}"/><circle cx="152" cy="52" r="7" fill="#2a3a54"/>`,
+    sports: `<path d="M20,46 L28,46 L35,34 L65,24 L110,24 L132,30 L168,34 L175,40 L180,46 L180,48 L168,50 L155,50 L155,48 L50,48 L50,50 L30,50 L18,48 Z" fill="${c}" opacity="0.85"/>
+      <path d="M65,24 L72,16 L108,16 L118,24" fill="${c}" opacity="0.6"/>
+      <circle cx="50" cy="50" r="10" fill="${w}"/><circle cx="50" cy="50" r="6" fill="#2a3a54"/>
+      <circle cx="155" cy="50" r="10" fill="${w}"/><circle cx="155" cy="50" r="6" fill="#2a3a54"/>`,
+    electric: `<path d="M22,44 L28,44 L32,28 L58,18 L100,18 L125,22 L168,28 L174,36 L178,44 L180,44 L180,48 L168,50 L155,50 L155,48 L50,48 L50,50 L30,50 L18,46 Z" fill="${c}" opacity="0.85"/>
+      <path d="M58,18 L64,10 L104,10 L115,18" fill="${c}" opacity="0.55"/>
+      <circle cx="50" cy="50" r="10" fill="${w}"/><circle cx="50" cy="50" r="6" fill="#2a3a54"/>
+      <circle cx="155" cy="50" r="10" fill="${w}"/><circle cx="155" cy="50" r="6" fill="#2a3a54"/>
+      <rect x="62" y="22" width="4" height="3" rx="1" fill="#28D17C" opacity="0.8"/>`
+  };
+  return `<svg viewBox="0 0 200 65" xmlns="http://www.w3.org/2000/svg">${paths[type] || paths.sedan}</svg>`;
+}
+
+// Vehicle Picker
+function renderMakeGrid(filter) {
+  const grid = document.getElementById('makeGrid');
+  const list = document.getElementById('modelList');
+  let html = '';
+  const f = (filter || '').toLowerCase();
+  Object.keys(vehicleDB).forEach(make => {
+    const db = vehicleDB[make];
+    const hasMatch = !f || make.toLowerCase().includes(f) ||
+      Object.keys(db.models).some(m => m.toLowerCase().includes(f));
+    if (hasMatch) {
+      html += `<button class="make-btn ${selectedMake === make ? 'active' : ''}" onclick="selectMake('${make}')">
+        <span class="make-flag">${db.flag}</span>${make}</button>`;
+    }
+  });
+  grid.innerHTML = html;
+  if (selectedMake && vehicleDB[selectedMake]) renderModelList(selectedMake, f);
+  else list.innerHTML = '';
+}
+
+function selectMake(make) {
+  selectedMake = make;
+  renderMakeGrid(document.getElementById('vehicleSearch').value);
+}
+
+function renderModelList(make, filter) {
+  const db = vehicleDB[make];
+  const list = document.getElementById('modelList');
+  let html = `<div style="font-size:13px;font-weight:700;margin:8px 0 6px;display:flex;justify-content:space-between">
+    <span>${make} Models</span>
+    <span style="font-size:10px;color:var(--muted)">Reliability: ${'&#9733;'.repeat(Math.round(db.rel))} ${db.rel}</span></div>`;
+  const f = (filter || '').toLowerCase();
+  Object.entries(db.models).forEach(([name, m]) => {
+    if (f && !name.toLowerCase().includes(f) && !make.toLowerCase().includes(f)) return;
+    const fuelEst = calcFuelEstimate(m.mpg, m.type);
+    html += `<div class="model-card" onclick="selectVehicle('${make}','${name}')">
+      ${getVehicleSVG(m.type, '#6AA5FF')}
+      <div class="model-info">
+        <div class="model-name">${make} ${name}</div>
+        <div class="model-meta">${currSymbol}${fmtShort(m.msrp)} &middot; ${m.type === 'electric' ? m.mpg + ' MPGe' : m.mpg + ' MPG'} &middot; ~${currSymbol}${fmtShort(fuelEst)}/mo fuel</div>
+      </div>
+      <span class="model-type-badge">${m.type}</span>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function calcFuelEstimate(mpg, type) {
+  if (type === 'electric') {
+    return currency === 'CAD' ? Math.round(1500 * 0.15 / 5.5) : Math.round(1000 * 0.13 / 3.5);
+  }
+  const kmPerMonth = 1500;
+  const kmPerLiter = mpg * 1.609344 / 3.78541;
+  const litersNeeded = kmPerMonth / kmPerLiter;
+  const pricePerLiter = currency === 'CAD' ? 1.55 : 0.95;
+  return Math.round(litersNeeded * pricePerLiter);
+}
+
+function selectVehicle(make, model) {
+  const db = vehicleDB[make];
+  const m = db.models[model];
+  selectedVehicleType = m.type;
+  document.getElementById('vehicleName').value = `2025 ${make} ${model}`;
+  document.getElementById('vehiclePrice').value = fmt(m.msrp);
+  document.getElementById('insurance').value = fmt(m.ins);
+  document.getElementById('fuel').value = fmt(calcFuelEstimate(m.mpg, m.type));
+  document.getElementById('maintenance').value = fmt(db.maint);
+  document.getElementById('depRate').value = db.dep;
+
+  // Update previews
+  document.getElementById('vehiclePreviewSmall').innerHTML = getVehicleSVG(m.type, '#6AA5FF');
+  document.getElementById('autofillBanner').style.display = 'flex';
+  document.getElementById('autofillText').textContent = `${make} ${model} estimates auto-filled`;
+
+  calcFinanced();
+  updateRunningBar();
+  updateDepreciation();
+
+  // Close modal
+  document.getElementById('modal-picker').classList.remove('show');
+  showToast(`${make} ${model} loaded!`);
+}
+
+function filterVehicles() {
+  const q = document.getElementById('vehicleSearch').value;
+  renderMakeGrid(q);
+}
+
+// Deal Rating
+function getDealStars(score) {
+  if (score >= 80) return 5;
+  if (score >= 65) return 4;
+  if (score >= 50) return 3;
+  if (score >= 35) return 2;
+  return 1;
+}
+
+function renderDealAnalysis() {
+  const R = currentResult;
+  if (!R) return;
+  const stars = getDealStars(R.score);
+  const starsHTML = Array(5).fill(0).map((_, i) =>
+    `<span class="star ${i < stars ? 'filled' : ''}">&#9733;</span>`).join('');
+
+  // Pros
+  const pros = [];
+  if (R.score >= 80) pros.push('Well within your budget');
+  if (R.incPct && R.incPct < 15) pros.push('Low income-to-cost ratio');
+  if (R.totalInterest < R.principal * 0.1) pros.push('Minimal interest charges');
+  if (R.n <= 60) pros.push('Short loan term reduces risk');
+  if (R.depLoss / R.vehiclePrice < 0.45) pros.push('Decent value retention');
+  if (R.monthlyPayment < 500) pros.push('Manageable monthly payment');
+  if (pros.length === 0) pros.push('Calculation complete');
+
+  // Cons
+  const cons = [];
+  if (R.incPct && R.incPct > 25) cons.push('High portion of income');
+  if (R.totalInterest > R.principal * 0.2) cons.push('Significant interest charges (' + currSymbol + fmtShort(R.totalInterest) + ')');
+  if (R.n > 72) cons.push('Extended loan term adds risk');
+  if (R.depLoss / R.vehiclePrice > 0.55) cons.push('High depreciation expected');
+  if (R.monthlyPayment > 800) cons.push('Large monthly payment');
+  if (R.runningCosts > 400) cons.push('High running costs');
+  if (cons.length === 0) cons.push('No major concerns found');
+
+  // Expert Tip
+  let tip;
+  if (R.score < 40) tip = 'Consider a less expensive vehicle or a larger down payment to improve affordability.';
+  else if (R.n > 72) {
+    const shortN = 60, shortR = R.r;
+    let shortPmt = shortR > 0 ? R.principal * (shortR * Math.pow(1+shortR,shortN)) / (Math.pow(1+shortR,shortN)-1) : R.principal/shortN;
+    const shortInt = shortPmt * shortN - R.principal;
+    const saved = R.totalInterest - shortInt;
+    tip = `Shortening to 60 months could save you ${currSymbol}${fmtShort(Math.max(saved,0))} in interest.`;
+  }
+  else if (R.incPct && R.incPct > 20) tip = 'Financial experts recommend keeping vehicle costs under 15-20% of monthly income.';
+  else if (R.totalInterest > 5000) tip = 'Making bi-weekly payments instead of monthly saves interest and pays off the loan faster.';
+  else tip = 'Great decision. Consider negotiating the price or shopping rates for even better value.';
+
+  document.getElementById('dealAnalysis').innerHTML = `
+    <div class="deal-header"><h3>Deal Analysis</h3><div class="deal-stars">${starsHTML}</div></div>
+    <div class="pros-cons">
+      <div class="pros-col"><h4>&#9989; Pros</h4>${pros.map(p => `<div class="pro-item">${p}</div>`).join('')}</div>
+      <div class="cons-col"><h4>&#10060; Cons</h4>${cons.map(c => `<div class="con-item">${c}</div>`).join('')}</div>
+    </div>
+    <div class="expert-tip">
+      <div class="tip-icon">&#128161;</div>
+      <div><div class="tip-label">Expert Tip</div><div class="tip-text">${tip}</div></div>
+    </div>`;
+}
+
+// PDF Export
+function exportPDF() {
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString();
+  window.print();
+}
 
 const onboardData = [
   { title: 'See the Real Cost', desc: 'Go beyond the sticker price. See your true monthly cost including loan payments, insurance, fuel, and maintenance.' },
@@ -1120,6 +1487,15 @@ function renderResults() {
   });
   breakdownHTML += '</div>';
   document.getElementById('breakdownSection').innerHTML = breakdownHTML;
+
+  // Hero vehicle SVG
+  const heroSVG = document.getElementById('heroVehicleSVG');
+  if (heroSVG) {
+    heroSVG.innerHTML = getVehicleSVG(selectedVehicleType, '#6AA5FF');
+  }
+
+  // Deal analysis
+  renderDealAnalysis();
 }
 
 // Extra payment
@@ -1251,10 +1627,14 @@ function copyShareText() {
 // Save Vehicle (with localStorage)
 function saveVehicle() {
   if (!currentResult) return;
+  const notesEl = document.getElementById('vehicleNotes');
   const vehicle = {
     id: Date.now(),
     name: document.getElementById('vehicleName').value,
     date: new Date().toLocaleDateString(),
+    vehicleType: selectedVehicleType,
+    notes: notesEl ? notesEl.value : '',
+    dealStars: getDealStars(currentResult.score),
     result: { ...currentResult }
   };
   savedVehicles.push(vehicle);
@@ -1274,7 +1654,17 @@ function renderSaved() {
   }
   let html = '';
   savedVehicles.forEach((v, i) => {
+    const vType = v.vehicleType || 'sedan';
+    const stars = v.dealStars || getDealStars(v.result.score);
+    const starsHTML = Array(5).fill(0).map((_, j) =>
+      `<span class="star ${j < stars ? 'filled' : ''}">&#9733;</span>`).join('');
+    const notesPreview = v.notes ? `<div class="saved-notes-preview">${v.notes.substring(0, 60)}${v.notes.length > 60 ? '...' : ''}</div>` : '';
+
     html += `<div class="saved-card">
+      <div class="saved-card-top">
+        <div class="saved-card-svg">${getVehicleSVG(vType, v.result.ratingColor || '#6AA5FF')}</div>
+        <div class="saved-stars">${starsHTML}</div>
+      </div>
       <div class="saved-card-header">
         <h3>${v.name}</h3>
         <div style="display:flex;align-items:center;gap:8px">
@@ -1288,6 +1678,7 @@ function renderSaved() {
         <div class="saved-metric"><div class="sm-label">5-Year Cost</div><div class="sm-value">${currSymbol}${fmtShort(v.result.fiveYearCost)}</div></div>
         <div class="saved-metric"><div class="sm-label">Smart Score</div><div class="sm-value" style="color:${v.result.ratingColor}">${v.result.rating}</div></div>
       </div>
+      ${notesPreview}
     </div>`;
   });
   document.getElementById('savedList').innerHTML = html;
@@ -1324,6 +1715,7 @@ function openModal(name) {
   if (name === 'amort') renderAmort();
   if (name === 'compare') renderCompare();
   if (name === 'share') renderShare();
+  if (name === 'picker') renderMakeGrid('');
   document.getElementById('modal-' + name).classList.add('show');
 }
 
