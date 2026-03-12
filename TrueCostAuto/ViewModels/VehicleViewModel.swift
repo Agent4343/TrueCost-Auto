@@ -11,6 +11,21 @@ final class VehicleViewModel {
     var showResults = false
     var isPro = false
 
+    // Wizard flow
+    var showWizard: Bool = false
+
+    // Affordability mode
+    var affordabilityBudget: Double = 800
+    var affordabilityAPR: Double = 6.99
+    var affordabilityTerm: Int = 60
+    var affordabilityDownPayment: Double = 3000
+    var affordabilityTradeIn: Double = 0
+    var affordabilityInsurance: Double = 180
+    var affordabilityFuel: Double = 200
+    var affordabilityMaintenance: Double = 60
+    var affordabilityOther: Double = 30
+    var affordabilityResult: AffordabilityResult?
+
     // Currency
     var currency: CurrencyRegion = .cad
 
@@ -120,6 +135,27 @@ final class VehicleViewModel {
         compareResults.removeAll()
     }
 
+    // MARK: - Affordability Mode
+
+    var affordabilityRunningCosts: Double {
+        affordabilityInsurance + affordabilityFuel + affordabilityMaintenance + affordabilityOther
+    }
+
+    func recalculateAffordability() {
+        affordabilityResult = CostCalculator.calculateAffordability(
+            targetMonthlyCost: affordabilityBudget,
+            estimatedRunningCosts: affordabilityRunningCosts,
+            aprPercent: affordabilityAPR,
+            termMonths: affordabilityTerm,
+            downPayment: affordabilityDownPayment,
+            tradeIn: affordabilityTradeIn,
+            salesTaxPercent: currency.defaultTaxRate,
+            monthlyIncome: vehicle.monthlyIncome
+        )
+    }
+
+    // MARK: - Computed
+
     var currencySymbol: String {
         currency.symbol
     }
@@ -138,7 +174,7 @@ final class VehicleViewModel {
         Total Interest: \(TCTheme.formatCurrency(r.totalInterest, symbol: sym))
         Total Paid: \(TCTheme.formatCurrency(r.totalPaid, symbol: sym))
         5-Year Cost: \(TCTheme.formatCurrency(r.fiveYearCost, symbol: sym))
-        Smart Score: \(r.smartScore.rawValue) (\(Int(r.smartScoreValue))/100)\(r.incomePercentage.map { " — \(String(format: "%.1f", $0))% of income" } ?? "")
+        DealFit Index: \(r.smartScore.rawValue) (\(Int(r.smartScoreValue))/100)\(r.incomePercentage.map { " — \(String(format: "%.1f", $0))% of income" } ?? "")
         ================================
         Calculated with TrueCost Auto
         """

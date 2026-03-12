@@ -7,22 +7,22 @@ struct OnboardingView: View {
 
     private let pages: [(icon: String, title: String, body: String, color: Color)] = [
         (
-            "dollarsign.circle.fill",
-            "See the Real Cost",
-            "Your car payment is just the start. TrueCost Auto shows you the full monthly picture — payment, insurance, fuel, maintenance, and depreciation.",
-            TCTheme.accent
-        ),
-        (
-            "gauge.with.dots.needle.67percent",
-            "Smart Score",
-            "Instantly see if a vehicle fits your budget. Our Smart Score analyzes your income ratio, interest burden, and loan term to give you a clear answer.",
+            "checkmark.shield.fill",
+            "Deal Verdict, Not Just Numbers",
+            "TrueCost Auto goes beyond a monthly payment. It gives you a verdict — Good, Caution, or Not Recommended — based on your income, interest load, and true ownership cost.",
             TCTheme.good
         ),
         (
-            "chart.bar.xaxis",
-            "Track & Compare",
-            "See your vehicle's value year-by-year. Save multiple vehicles and compare them side-by-side to find which one truly costs less over time.",
+            "arrow.uturn.backward.circle.fill",
+            "What Can I Actually Afford?",
+            "Affordability Mode flips the calculation: enter your monthly budget and we compute the maximum vehicle price you can realistically afford — factoring in insurance, fuel, and maintenance.",
             TCTheme.accent2
+        ),
+        (
+            "gauge.with.dots.needle.67percent",
+            "DealFit Index™",
+            "Our proprietary score (0–100) weights cost-to-income ratio, interest burden, and loan term length. Tap 'Methodology' any time to see exactly how it's calculated.",
+            TCTheme.accent
         ),
     ]
 
@@ -34,11 +34,17 @@ struct OnboardingView: View {
                 Spacer()
 
                 // Logo
-                AppLogo(size: 80)
+                AppLogo(size: 72)
                     .shadow(color: TCTheme.accent.opacity(0.3), radius: 20, y: 10)
                     .scaleEffect(animateIcon ? 1.0 : 0.8)
                     .opacity(animateIcon ? 1 : 0)
-                    .padding(.bottom, 32)
+                    .padding(.bottom, 8)
+
+                Text("TrueCost Auto")
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundStyle(TCTheme.text)
+                    .opacity(animateIcon ? 1 : 0)
+                    .padding(.bottom, 28)
 
                 // Page content
                 TabView(selection: $currentPage) {
@@ -48,7 +54,7 @@ struct OnboardingView: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .always))
-                .frame(height: 280)
+                .frame(height: 300)
 
                 Spacer()
 
@@ -62,7 +68,7 @@ struct OnboardingView: View {
                         dismiss()
                     }
                 } label: {
-                    Text(currentPage < pages.count - 1 ? "Next" : "Get Started")
+                    Text(currentPage < pages.count - 1 ? "Next" : "Start Checking Deals")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -73,6 +79,7 @@ struct OnboardingView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal, 24)
+                .accessibilityLabel(currentPage < pages.count - 1 ? "Next" : "Start checking deals")
 
                 if currentPage < pages.count - 1 {
                     Button {
@@ -83,6 +90,7 @@ struct OnboardingView: View {
                             .foregroundStyle(TCTheme.muted)
                     }
                     .padding(.top, 12)
+                    .accessibilityLabel("Skip onboarding")
                 }
 
                 Spacer()
@@ -104,18 +112,22 @@ struct OnboardingView: View {
                 .foregroundStyle(page.color)
                 .padding(.bottom, 4)
                 .shadow(color: page.color.opacity(0.3), radius: 8, y: 4)
+                .accessibilityHidden(true)
 
             Text(page.title)
-                .font(.system(size: 24, weight: .bold))
+                .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(TCTheme.text)
+                .multilineTextAlignment(.center)
 
             Text(page.body)
-                .font(.system(size: 15))
+                .font(.system(size: 14))
                 .foregroundStyle(TCTheme.muted)
                 .multilineTextAlignment(.center)
-                .lineSpacing(3)
-                .padding(.horizontal, 32)
+                .lineSpacing(4)
+                .padding(.horizontal, 28)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(page.title). \(page.body)")
     }
 }
 

@@ -291,4 +291,55 @@ struct CostCalculator {
             interestDiff: resultA.totalInterest - resultB.totalInterest
         )
     }
+
+    // MARK: - Reverse Affordability
+
+    /// Compute the maximum vehicle price given a target monthly total cost budget,
+    /// estimated running costs, APR, term, down payment, and trade-in.
+    static func calculateAffordability(
+        targetMonthlyCost: Double,
+        estimatedRunningCosts: Double,
+        aprPercent: Double,
+        termMonths: Int,
+        downPayment: Double,
+        tradeIn: Double,
+        salesTaxPercent: Double,
+        monthlyIncome: Double
+    ) -> AffordabilityResult {
+        let maxLoanPayment = max(targetMonthlyCost - estimatedRunningCosts, 0)
+        let monthlyRate = (aprPercent / 100.0) / 12.0
+        let n = Double(termMonths)
+
+        // Invert amortization: payment = P * r(1+r)^n / ((1+r)^n - 1)
+        // => P = payment * ((1+r)^n - 1) / (r(1+r)^n)
+        let maxFinanced: Double
+        if monthlyRate > 0 && n > 0 {
+            let factor = pow(1 + monthlyRate, n)
+            maxFinanced = maxLoanPayment * (factor - 1) / (monthlyRate * factor)
+        } else if n > 0 {
+            maxFinanced = maxLoanPayment * n
+        } else {
+            maxFinanced = 0
+        }
+
+        // Work back from financed amount to pre-tax vehicle price
+        // financed = (price + fees - down - trade) * (1 + taxRate)
+        // => price = financed / (1 + taxRate) - fees + down + trade
+        // (Simplified: fees assumed 0, user can adjust)
+        let taxMultiplier = 1.0 + salesTaxPercent / 100.0
+        let grossVehiclePrice = maxFinanced / taxMultiplier + downPayment + tradeIn
+
+        let incomePercent: Double? = monthlyIncome > 0
+            ? (targetMonthlyCost / monthlyIncome) * 100.0
+            : nil
+
+        return AffordabilityResult(
+            targetMonthlyCost: targetMonthlyCost,
+            estimatedRunningCosts: estimatedRunningCosts,
+            maxMonthlyLoanPayment: maxLoanPayment,
+            maxFinancedAmount: maxFinanced,
+            maxVehiclePrice: max(grossVehiclePrice, 0),
+            incomePercent: incomePercent
+        )
+    }
 }

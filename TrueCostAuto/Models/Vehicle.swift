@@ -36,6 +36,9 @@ struct Vehicle: Identifiable, Hashable {
     var monthlyIncome: Double = 7000
     var extraMonthlyPayment: Double = 0
 
+    // Affordability / wizard
+    var monthlyBudget: Double = 0
+
     var amountFinanced: Double {
         let subtotal = vehiclePrice + feesAndExtras - downPayment - tradeInValue
         let tax = subtotal * (salesTaxRate / 100.0)
@@ -75,7 +78,7 @@ extension Vehicle: Codable {
         case insurance, fuel, maintenance, tiresAndOther, warranty
         case depreciationRate
         case useFuelEstimator, annualDistance, fuelEfficiency, fuelPricePerUnit
-        case monthlyIncome, extraMonthlyPayment
+        case monthlyIncome, extraMonthlyPayment, monthlyBudget
     }
 
     init(from decoder: Decoder) throws {
@@ -102,6 +105,7 @@ extension Vehicle: Codable {
         fuelPricePerUnit = (try? c.decode(Double.self, forKey: .fuelPricePerUnit)) ?? 1.65
         monthlyIncome = (try? c.decode(Double.self, forKey: .monthlyIncome)) ?? 7000
         extraMonthlyPayment = (try? c.decode(Double.self, forKey: .extraMonthlyPayment)) ?? 0
+        monthlyBudget = (try? c.decode(Double.self, forKey: .monthlyBudget)) ?? 0
     }
 }
 
