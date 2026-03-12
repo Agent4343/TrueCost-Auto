@@ -34,6 +34,14 @@
 		A10000025 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A20000025; };
 		A10000026 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000026; };
 		A10000027 /* YearProjectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000027; };
+		A10000028 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000028; };
+		A10000029 /* DealCheckWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000029; };
+		A10000030 /* VerdictView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000030; };
+		A10000031 /* CostStackChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000031; };
+		A10000032 /* WhatToChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000032; };
+		A10000033 /* AffordabilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000033; };
+		A10000034 /* MethodologyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000034; };
+		A10000035 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000035; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +73,14 @@
 		A20000025 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A20000026 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A20000027 /* YearProjectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearProjectionView.swift; sourceTree = "<group>"; };
+		A20000028 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
+		A20000029 /* DealCheckWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DealCheckWizardView.swift; sourceTree = "<group>"; };
+		A20000030 /* VerdictView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerdictView.swift; sourceTree = "<group>"; };
+		A20000031 /* CostStackChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostStackChartView.swift; sourceTree = "<group>"; };
+		A20000032 /* WhatToChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatToChangeView.swift; sourceTree = "<group>"; };
+		A20000033 /* AffordabilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffordabilityView.swift; sourceTree = "<group>"; };
+		A20000034 /* MethodologyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodologyView.swift; sourceTree = "<group>"; };
+		A20000035 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +133,12 @@
 				A50000005 /* Input */,
 				A50000006 /* Results */,
 				A50000011 /* Components */,
+				A50000012 /* Wizard */,
+				A50000013 /* Verdict */,
+				A50000014 /* Affordability */,
+				A50000015 /* Paywall */,
 				A20000023 /* OnboardingView.swift */,
+				A20000034 /* MethodologyView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -163,6 +184,7 @@
 			children = (
 				A20000006 /* CostCalculator.swift */,
 				A20000007 /* VehicleStore.swift */,
+				A20000028 /* StoreKitManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -190,6 +212,40 @@
 				A20000024 /* AppLogo.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		A50000012 /* Wizard */ = {
+			isa = PBXGroup;
+			children = (
+				A20000029 /* DealCheckWizardView.swift */,
+			);
+			path = Wizard;
+			sourceTree = "<group>";
+		};
+		A50000013 /* Verdict */ = {
+			isa = PBXGroup;
+			children = (
+				A20000030 /* VerdictView.swift */,
+				A20000031 /* CostStackChartView.swift */,
+				A20000032 /* WhatToChangeView.swift */,
+			);
+			path = Verdict;
+			sourceTree = "<group>";
+		};
+		A50000014 /* Affordability */ = {
+			isa = PBXGroup;
+			children = (
+				A20000033 /* AffordabilityView.swift */,
+			);
+			path = Affordability;
+			sourceTree = "<group>";
+		};
+		A50000015 /* Paywall */ = {
+			isa = PBXGroup;
+			children = (
+				A20000035 /* PaywallView.swift */,
+			);
+			path = Paywall;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -287,6 +343,14 @@
 				A10000024 /* AppLogo.swift in Sources */,
 				A10000026 /* SettingsView.swift in Sources */,
 				A10000027 /* YearProjectionView.swift in Sources */,
+				A10000028 /* StoreKitManager.swift in Sources */,
+				A10000029 /* DealCheckWizardView.swift in Sources */,
+				A10000030 /* VerdictView.swift in Sources */,
+				A10000031 /* CostStackChartView.swift in Sources */,
+				A10000032 /* WhatToChangeView.swift in Sources */,
+				A10000033 /* AffordabilityView.swift in Sources */,
+				A10000034 /* MethodologyView.swift in Sources */,
+				A10000035 /* PaywallView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
