@@ -326,7 +326,7 @@ struct CostCalculator {
         // financed = (price + fees - down - trade) * (1 + taxRate)
         // => price = financed / (1 + taxRate) - fees + down + trade
         // (Simplified: fees assumed 0, user can adjust)
-        let taxMultiplier = 1.0 + salesTaxPercent / 100.0
+        let taxMultiplier = max(1.0 + salesTaxPercent / 100.0, 0.01)
         let grossVehiclePrice = maxFinanced / taxMultiplier + downPayment + tradeIn
 
         let incomePercent: Double? = monthlyIncome > 0

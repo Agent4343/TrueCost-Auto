@@ -16,13 +16,13 @@ struct VerdictView: View {
     @State private var animate = false
 
     var body: some View {
-        guard let result = vm.result else {
+        if let result = vm.result {
+            content(result: result)
+        } else {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(TCTheme.bg)
-            return AnyView(ProgressView())
         }
-        return AnyView(content(result: result))
     }
 
     private func content(result: CalculationResult) -> some View {
@@ -306,13 +306,13 @@ struct VerdictView: View {
         let sym = vm.currencySymbol
 
         // Loan payment share
-        let loanPct = Int(result.monthlyPayment / result.trueMonthlyCost * 100)
+        let loanPct = Int(result.monthlyPayment / max(result.trueMonthlyCost, 1) * 100)
         insights.append(("loan",
             "Loan payment is \(loanPct)% of your true cost — \(TCTheme.formatCurrency(result.monthlyPayment, symbol: sym))/mo.",
             TCTheme.accent))
 
         // Depreciation share
-        let depPct = Int(result.monthlyDepreciation / result.trueMonthlyCost * 100)
+        let depPct = Int(result.monthlyDepreciation / max(result.trueMonthlyCost, 1) * 100)
         insights.append(("depreciation",
             "Depreciation costs you \(TCTheme.formatCurrency(result.monthlyDepreciation, symbol: sym))/mo — \(depPct)% of true cost, even while the car sits.",
             TCTheme.depreciation))

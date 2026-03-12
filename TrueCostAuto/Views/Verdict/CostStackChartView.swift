@@ -25,7 +25,7 @@ struct CostStackChartView: View {
                             RoundedRectangle(cornerRadius: 6, style: .continuous)
                                 .fill(seg.color)
                                 .frame(width: max(barWidth(for: seg, totalWidth: geo.size.width), 6))
-                                .accessibilityLabel("\(seg.label): \(Int(seg.value / total * 100))%")
+                                .accessibilityLabel("\(seg.label): \(Int(seg.value / max(total, 1) * 100))%")
                         }
                     }
                 }

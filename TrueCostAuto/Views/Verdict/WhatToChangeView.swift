@@ -81,7 +81,7 @@ struct WhatToChangeView: View {
                 icon: "arrow.down.right.circle.fill",
                 color: TCTheme.depreciation,
                 title: "High depreciation is a major cost driver",
-                body: "Depreciation accounts for \(Int(result.monthlyDepreciation / result.trueMonthlyCost * 100))% of your true monthly cost. Certified pre-owned vehicles typically depreciate slower in their first years.",
+                body: "Depreciation accounts for \(Int(result.monthlyDepreciation / max(result.trueMonthlyCost, 1) * 100))% of your true monthly cost. Certified pre-owned vehicles typically depreciate slower in their first years.",
                 impact: .neutral
             ))
         }

@@ -68,12 +68,13 @@ struct CalculationResult: Equatable {
 
     // Top cost drivers (sorted by monthly $ amount, descending)
     var costDrivers: [CostDriver] {
+        let total = max(trueMonthlyCost, 1)
         var drivers: [CostDriver] = []
         if monthlyPayment > 0 {
-            drivers.append(CostDriver(label: "Loan Payment", monthlyCost: monthlyPayment, pct: monthlyPayment / trueMonthlyCost))
+            drivers.append(CostDriver(label: "Loan Payment", monthlyCost: monthlyPayment, pct: monthlyPayment / total))
         }
         if monthlyDepreciation > 0 {
-            drivers.append(CostDriver(label: "Depreciation", monthlyCost: monthlyDepreciation, pct: monthlyDepreciation / trueMonthlyCost))
+            drivers.append(CostDriver(label: "Depreciation", monthlyCost: monthlyDepreciation, pct: monthlyDepreciation / total))
         }
         return drivers.sorted { $0.monthlyCost > $1.monthlyCost }
     }

@@ -86,40 +86,43 @@ struct ContentView: View {
         ZStack {
             backgroundGradient.ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 20) {
+            if viewModel.showResults {
+                VStack(spacing: 0) {
                     headerBar
-
-                    if viewModel.showResults {
-                        VerdictView()
-
-                        Button {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                                viewModel.showResults = false
-                            }
-                        } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "wand.and.stars")
-                                    .font(.system(size: 13))
-                                Text("Check Another Deal")
-                                    .font(.system(size: 14, weight: .semibold))
-                            }
-                            .foregroundStyle(TCTheme.accent)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(TCTheme.panelAlt)
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(TCTheme.accent.opacity(0.3), lineWidth: 1))
+                        .padding(.bottom, 8)
+                    VerdictView()
+                    Button {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                            viewModel.showResults = false
                         }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal, 16)
-                        .accessibilityLabel("Check another deal")
-                    } else {
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "wand.and.stars")
+                                .font(.system(size: 13))
+                            Text("Check Another Deal")
+                                .font(.system(size: 14, weight: .semibold))
+                        }
+                        .foregroundStyle(TCTheme.accent)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(TCTheme.panelAlt)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(TCTheme.accent.opacity(0.3), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 24)
+                    .accessibilityLabel("Check another deal")
+                }
+            } else {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        headerBar
                         homeDashboard
                     }
+                    .padding(.bottom, 32)
                 }
-                .padding(.bottom, 32)
             }
         }
         .navigationBarHidden(true)

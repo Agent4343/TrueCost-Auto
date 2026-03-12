@@ -78,23 +78,23 @@ struct AffordabilityView: View {
         @Bindable var vm = vm
         return VStack(spacing: 14) {
             inputRow(title: "Monthly Budget", icon: "dollarsign.circle.fill") {
-                CurrencyField(value: $vm.affordabilityBudget, placeholder: "e.g. 800", unit: vm.currencySymbol + "/mo")
+                CurrencyField(label: "Monthly Budget", unit: vm.currencySymbol + "/mo", value: $vm.affordabilityBudget, placeholder: "e.g. 800")
             }
 
             inputRow(title: "APR", icon: "percent") {
-                PercentField(value: $vm.affordabilityAPR, placeholder: "6.99")
+                PercentField(label: "APR", value: $vm.affordabilityAPR)
             }
 
             inputRow(title: "Loan Term", icon: "calendar") {
-                TermPicker(selection: $vm.affordabilityTerm)
+                TermPicker(selectedTerm: $vm.affordabilityTerm, terms: Vehicle.availableTerms)
             }
 
             HStack(spacing: 12) {
                 inputRow(title: "Down Payment", icon: "arrow.down.circle.fill") {
-                    CurrencyField(value: $vm.affordabilityDownPayment, placeholder: "0", unit: vm.currencySymbol)
+                    CurrencyField(label: "Down Payment", unit: vm.currencySymbol, value: $vm.affordabilityDownPayment)
                 }
                 inputRow(title: "Trade-In", icon: "arrow.triangle.2.circlepath") {
-                    CurrencyField(value: $vm.affordabilityTradeIn, placeholder: "0", unit: vm.currencySymbol)
+                    CurrencyField(label: "Trade-In", unit: vm.currencySymbol, value: $vm.affordabilityTradeIn)
                 }
             }
 
@@ -107,18 +107,18 @@ struct AffordabilityView: View {
 
             HStack(spacing: 12) {
                 inputRow(title: "Insurance", icon: "shield.fill") {
-                    CurrencyField(value: $vm.affordabilityInsurance, placeholder: "0", unit: vm.currencySymbol + "/mo")
+                    CurrencyField(label: "Insurance", unit: vm.currencySymbol + "/mo", value: $vm.affordabilityInsurance)
                 }
                 inputRow(title: "Fuel", icon: "fuelpump.fill") {
-                    CurrencyField(value: $vm.affordabilityFuel, placeholder: "0", unit: vm.currencySymbol + "/mo")
+                    CurrencyField(label: "Fuel", unit: vm.currencySymbol + "/mo", value: $vm.affordabilityFuel)
                 }
             }
             HStack(spacing: 12) {
                 inputRow(title: "Maintenance", icon: "wrench.fill") {
-                    CurrencyField(value: $vm.affordabilityMaintenance, placeholder: "0", unit: vm.currencySymbol + "/mo")
+                    CurrencyField(label: "Maintenance", unit: vm.currencySymbol + "/mo", value: $vm.affordabilityMaintenance)
                 }
                 inputRow(title: "Other", icon: "ellipsis.circle.fill") {
-                    CurrencyField(value: $vm.affordabilityOther, placeholder: "0", unit: vm.currencySymbol + "/mo")
+                    CurrencyField(label: "Other", unit: vm.currencySymbol + "/mo", value: $vm.affordabilityOther)
                 }
             }
         }

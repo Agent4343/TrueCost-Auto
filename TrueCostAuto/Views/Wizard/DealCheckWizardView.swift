@@ -229,9 +229,10 @@ struct WizardBudgetStep: View {
         VStack(spacing: 16) {
             WizardFieldCard(title: "Monthly Budget", icon: "dollarsign.circle.fill") {
                 CurrencyField(
+                    label: "Monthly Budget",
+                    unit: vm.currencySymbol + "/mo",
                     value: $vm.vehicle.monthlyBudget,
-                    placeholder: "e.g. 800",
-                    unit: vm.currencySymbol + "/mo"
+                    placeholder: "e.g. 800"
                 )
             }
 
@@ -241,9 +242,10 @@ struct WizardBudgetStep: View {
                 subtitle: "Optional — powers DealFit Index"
             ) {
                 CurrencyField(
+                    label: "Take-Home Pay",
+                    unit: vm.currencySymbol + "/mo",
                     value: $vm.vehicle.monthlyIncome,
-                    placeholder: "e.g. 5,000",
-                    unit: vm.currencySymbol + "/mo"
+                    placeholder: "e.g. 5,000"
                 )
             }
 
@@ -287,20 +289,20 @@ struct WizardDealStep: View {
             }
 
             WizardFieldCard(title: "Vehicle Price", icon: "tag.fill") {
-                CurrencyField(value: $vm.vehicle.vehiclePrice, placeholder: "0", unit: vm.currencySymbol)
+                CurrencyField(label: "Vehicle Price", unit: vm.currencySymbol, value: $vm.vehicle.vehiclePrice)
             }
 
             HStack(spacing: 12) {
                 WizardFieldCard(title: "Down Payment", icon: "arrow.down.circle.fill") {
-                    CurrencyField(value: $vm.vehicle.downPayment, placeholder: "0", unit: vm.currencySymbol)
+                    CurrencyField(label: "Down Payment", unit: vm.currencySymbol, value: $vm.vehicle.downPayment)
                 }
                 WizardFieldCard(title: "Trade-In", icon: "arrow.triangle.2.circlepath") {
-                    CurrencyField(value: $vm.vehicle.tradeInValue, placeholder: "0", unit: vm.currencySymbol)
+                    CurrencyField(label: "Trade-In", unit: vm.currencySymbol, value: $vm.vehicle.tradeInValue)
                 }
             }
 
             WizardFieldCard(title: "Fees & Extras", icon: "doc.text.fill", subtitle: "Dealer fees, admin, etc.") {
-                CurrencyField(value: $vm.vehicle.feesAndExtras, placeholder: "0", unit: vm.currencySymbol)
+                CurrencyField(label: "Fees & Extras", unit: vm.currencySymbol, value: $vm.vehicle.feesAndExtras)
             }
 
             WizardFieldCard(title: "Loan Terms", icon: "calendar.badge.clock") {
@@ -310,20 +312,20 @@ struct WizardDealStep: View {
                             Text("APR")
                                 .font(.system(size: 12))
                                 .foregroundStyle(TCTheme.muted)
-                            PercentField(value: $vm.vehicle.interestRate, placeholder: "0.00")
+                            PercentField(label: "APR", value: $vm.vehicle.interestRate)
                         }
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Sales Tax")
                                 .font(.system(size: 12))
                                 .foregroundStyle(TCTheme.muted)
-                            PercentField(value: $vm.vehicle.salesTaxRate, placeholder: "0.00")
+                            PercentField(label: "Sales Tax", value: $vm.vehicle.salesTaxRate)
                         }
                     }
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Term")
                             .font(.system(size: 12))
                             .foregroundStyle(TCTheme.muted)
-                        TermPicker(selection: $vm.vehicle.loanTermMonths)
+                        TermPicker(selectedTerm: $vm.vehicle.loanTermMonths, terms: Vehicle.availableTerms)
                     }
                 }
             }
@@ -357,7 +359,7 @@ struct WizardUsageStep: View {
         @Bindable var vm = vm
         VStack(spacing: 16) {
             WizardFieldCard(title: "Monthly Insurance", icon: "shield.fill") {
-                CurrencyField(value: $vm.vehicle.insurance, placeholder: "0", unit: vm.currencySymbol + "/mo")
+                CurrencyField(label: "Insurance", unit: vm.currencySymbol + "/mo", value: $vm.vehicle.insurance)
             }
 
             WizardFieldCard(title: "Fuel / Charging", icon: "fuelpump.fill") {
@@ -378,14 +380,14 @@ struct WizardUsageStep: View {
                                 Text("Distance/yr")
                                     .font(.system(size: 11))
                                     .foregroundStyle(TCTheme.muted)
-                                CurrencyField(value: $vm.vehicle.annualDistance, placeholder: "0", unit: vm.currency.distanceUnit)
+                                CurrencyField(label: "Distance/yr", unit: vm.currency.distanceUnit, value: $vm.vehicle.annualDistance)
                                     .onChange(of: vm.vehicle.annualDistance) { _, _ in vm.updateFuelEstimate() }
                             }
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Efficiency")
                                     .font(.system(size: 11))
                                     .foregroundStyle(TCTheme.muted)
-                                CurrencyField(value: $vm.vehicle.fuelEfficiency, placeholder: "0", unit: vm.currency.fuelEfficiencyLabel)
+                                CurrencyField(label: "Efficiency", unit: vm.currency.fuelEfficiencyLabel, value: $vm.vehicle.fuelEfficiency)
                                     .onChange(of: vm.vehicle.fuelEfficiency) { _, _ in vm.updateFuelEstimate() }
                             }
                         }
@@ -394,23 +396,23 @@ struct WizardUsageStep: View {
                                 Text("Price/unit")
                                     .font(.system(size: 11))
                                     .foregroundStyle(TCTheme.muted)
-                                CurrencyField(value: $vm.vehicle.fuelPricePerUnit, placeholder: "0", unit: vm.currency.fuelPriceLabel)
+                                CurrencyField(label: "Price/unit", unit: vm.currency.fuelPriceLabel, value: $vm.vehicle.fuelPricePerUnit)
                                     .onChange(of: vm.vehicle.fuelPricePerUnit) { _, _ in vm.updateFuelEstimate() }
                             }
                             Spacer()
                         }
                     } else {
-                        CurrencyField(value: $vm.vehicle.fuel, placeholder: "0", unit: vm.currencySymbol + "/mo")
+                        CurrencyField(label: "Fuel/Charging", unit: vm.currencySymbol + "/mo", value: $vm.vehicle.fuel)
                     }
                 }
             }
 
             HStack(spacing: 12) {
                 WizardFieldCard(title: "Maintenance", icon: "wrench.and.screwdriver.fill") {
-                    CurrencyField(value: $vm.vehicle.maintenance, placeholder: "0", unit: vm.currencySymbol + "/mo")
+                    CurrencyField(label: "Maintenance", unit: vm.currencySymbol + "/mo", value: $vm.vehicle.maintenance)
                 }
                 WizardFieldCard(title: "Tires & Other", icon: "circle.inset.filled") {
-                    CurrencyField(value: $vm.vehicle.tiresAndOther, placeholder: "0", unit: vm.currencySymbol + "/mo")
+                    CurrencyField(label: "Tires & Other", unit: vm.currencySymbol + "/mo", value: $vm.vehicle.tiresAndOther)
                 }
             }
 
